@@ -1,0 +1,9 @@
+{
+	"$schema": "https://raw.githubusercontent.com/shdwmtr/millennium/main/src/sys/plugin-schema.json",
+
+	"name": "change_window_params",
+	"common_name": "Change Window Parameters",
+	"description": "Modify how Steam displays windows.",
+	"frontend": "src",
+	"useBackend": false
+}

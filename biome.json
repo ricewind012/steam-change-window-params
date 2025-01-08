@@ -1,0 +1,16 @@
+{
+	"linter": {
+		"rules": {
+			"correctness": {
+				"noUnusedImports": "error",
+				"useJsxKeyInIterable": "off"
+			},
+			"style": {
+				"useEnumInitializers": "off"
+			},
+			"suspicious": {
+				"noExplicitAny": "off"
+			}
+		}
+	}
+}
