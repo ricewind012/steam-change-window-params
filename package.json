@@ -1,11 +1,12 @@
 {
 	"name": "steam-change-window-params",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "Change Steam's window parameters",
 	"main": "./frontend/index.tsx",
 	"type": "module",
 	"scripts": {
-		"build": "millennium-ttc --build dev"
+		"build": "millennium-ttc --build prod",
+		"dev": "millennium-ttc --build dev"
 	},
 	"dependencies": {
 		"@steambrew/client": "^4.2.1",

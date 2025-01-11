@@ -1,6 +1,5 @@
 import plugin from "../plugin.json";
 
-const k_bShouldLog = false;
 const k_strLogStyle = "padding: 0 1ch";
 const k_strPluginName = plugin.name;
 
@@ -12,10 +11,6 @@ export class CLog {
 	}
 
 	#Print(strMethod: string, strFormat: string, ...args: any[]) {
-		if (!k_bShouldLog) {
-			return;
-		}
-
 		console[strMethod](
 			`%c${k_strPluginName}%c${this.m_strScope}%c ${strFormat}`,
 			`${k_strLogStyle}; background-color: black; color: white`,
