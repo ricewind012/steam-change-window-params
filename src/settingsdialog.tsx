@@ -10,7 +10,6 @@ import {
 	TextField,
 	Toggle,
 	findModule,
-	findModuleByExport,
 	pluginSelf,
 	showModal,
 	type FieldProps,
@@ -19,11 +18,13 @@ import {
 } from "@steambrew/client";
 import { Component } from "react";
 import { CLog } from "./logger";
-import { GetSettings, SetSettingsKey, type Settings } from "./settings";
 import {
-	EBrowserType,
-	EPopupCreationFlags,
-} from "./sharedjscontextglobals/normal/shared/enums";
+	GetSettings,
+	mapParamEnums,
+	mapParamFlags,
+	SetSettingsKey,
+	type Settings,
+} from "./settings";
 import { BBCodeParser } from "./modules/bbcode";
 import { Localize } from "./modules/localization";
 
@@ -46,15 +47,6 @@ const k_pWarners: WarningDisplayer_t = {
 	createflags: ["Hidden"],
 };
 
-const mapParamEnums = {
-	browserType: EBrowserType,
-	vrOverlayKey: Object.values(
-		findModuleByExport((m) => m === "valve.steam.gamepadui.main"),
-	) as string[],
-};
-const mapParamFlags = {
-	createflags: EPopupCreationFlags,
-};
 const mapParamDescriptionArgs = {
 	restoredetails: ["1&x=604&y=257&w=1010&h=600"],
 	useragent: [

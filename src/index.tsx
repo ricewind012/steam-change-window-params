@@ -13,7 +13,11 @@ import { SettingsDialog } from "./settingsdialog";
 import * as pLocales from "../locales";
 import { CLog } from "./logger";
 import plugin from "../plugin.json";
-import { GetSettings, ParseParam } from "./settings";
+import {
+	GetSettings,
+	ParseParam,
+	ParseParamForHTMLAttribute,
+} from "./settings";
 import type {
 	CPopupManager,
 	LocalizationManager as CLocalizationManager,
@@ -67,6 +71,13 @@ async function InitLocalization() {
 
 async function OnPopupCreated(pPopup: SteamPopup) {
 	const pPopupDoc = pPopup.m_popup.document;
+	const { params } = await GetSettings();
+	for (const [k, v] of Object.entries(params)) {
+		const elRoot = pPopupDoc.documentElement;
+		const value = ParseParamForHTMLAttribute(k, v);
+		elRoot.setAttribute(k, value);
+	}
+
 	if (pPopup.m_strTitle !== strSettingsWindowTitle) {
 		return;
 	}

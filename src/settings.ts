@@ -1,5 +1,9 @@
-import { pluginSelf } from "@steambrew/client";
+import { findModuleByExport, pluginSelf } from "@steambrew/client";
 import plugin from "../plugin.json";
+import {
+	EBrowserType,
+	EPopupCreationFlags,
+} from "./sharedjscontextglobals/normal";
 
 /**
  * `number[]` - flags,
@@ -13,6 +17,17 @@ export interface Settings {
 }
 
 const k_strSettingsKey = `${plugin.name}_Settings`;
+
+export const mapParamEnums = {
+	browserType: EBrowserType,
+	vrOverlayKey: Object.values(
+		findModuleByExport((m) => m === "valve.steam.gamepadui.main"),
+	) as string[],
+};
+
+export const mapParamFlags = {
+	createflags: EPopupCreationFlags,
+};
 
 export async function GetSettings(): Promise<Settings> {
 	const strDefaultJSON = JSON.stringify({
@@ -33,6 +48,21 @@ export function ParseParam(k: string, v: ParamValue_t) {
 			return decodeURIComponent(v);
 		default:
 			return v;
+	}
+}
+
+export function ParseParamForHTMLAttribute(k: string, v: ParamValue_t): string {
+	switch (true) {
+		case !!mapParamEnums[k]:
+			return mapParamEnums[k][v];
+		case !!mapParamFlags[k]:
+			return (v as unknown as number[])
+				.map((e) => mapParamFlags[k][e])
+				.join(" ");
+		default:
+			// The only number[] values are in the above maps already, the only
+			// ones left are strings.
+			return v as string;
 	}
 }
 
