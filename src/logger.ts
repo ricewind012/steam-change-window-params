@@ -1,6 +1,6 @@
 import plugin from "../plugin.json";
 
-const k_bShouldLog = true;
+const k_bShouldLog = false;
 const k_strLogStyle = "padding: 0 1ch";
 const k_strPluginName = plugin.name;
 

@@ -4,6 +4,7 @@
 	"name": "change_window_params",
 	"common_name": "Change Window Parameters",
 	"description": "Modify how Steam displays windows.",
+	"version": "1.0.0",
 	"frontend": "src",
 	"useBackend": false
 }

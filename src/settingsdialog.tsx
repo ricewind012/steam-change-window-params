@@ -20,7 +20,10 @@ import {
 import { Component } from "react";
 import { CLog } from "./logger";
 import { GetSettings, SetSettingsKey, type Settings } from "./settings";
-import { EBrowserType, EPopupCreationFlags } from "./steamwindowdefs";
+import {
+	EBrowserType,
+	EPopupCreationFlags,
+} from "./sharedjscontextglobals/normal/shared/enums";
 import { BBCodeParser } from "./modules/bbcode";
 import { Localize } from "./modules/localization";
 

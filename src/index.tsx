@@ -5,7 +5,6 @@ import {
 	Millennium,
 	pluginSelf,
 	showModal,
-	TextField,
 } from "@steambrew/client";
 import { render } from "react-dom";
 
@@ -116,9 +115,8 @@ export default async function PluginMain() {
 
 		return pOriginalOpen(pNewURL, target, features);
 	};
-	pluginSelf.test = <TextField mustBeNumeric />;
 
-	g_pLogger.Log("Initializing localization...");
+	g_pLogger.Log("Initializing localization");
 	await InitLocalization();
 
 	g_pLogger.Log("Injecting plugin options into %o", strSettingsWindowTitle);
