@@ -28,7 +28,9 @@ import {
 	SetSettingsKey,
 	type Settings,
 } from "./settings";
+import type { WindowParam_t, WindowParamMap_t } from "./types";
 
+// biome-ignore lint/correctness/noUnusedVariables: Needed for demonstration
 enum EParamType {
 	Boolean,
 	Enum,
@@ -38,32 +40,31 @@ enum EParamType {
 }
 
 type EnumObject_t = [string, number][];
-type PageMapFn_t = (param: string) => JSX.Element;
-type WarningDisplayer_t = { [member: string]: string[] };
+type PageMapFn_t = (param: WindowParam_t) => JSX.Element;
 
 const k_vecParamTypes = ["Booleans", "Enums", "Flags", "Numbers", "Strings"];
 const k_pDefaultDropdownValue: SingleDropdownOption = { data: 0, label: "--" };
-const k_pWarners: WarningDisplayer_t = {
+const k_pWarners: WindowParamMap_t<string[]> = {
 	browserType: ["OffScreen", "Offscreen_SteamUI"],
 	createflags: ["Hidden"],
 };
 
-const mapParamDescriptionArgs = {
+const mapParamDescriptionArgs: WindowParamMap_t<string[]> = {
 	restoredetails: ["1&x=604&y=257&w=1010&h=600"],
 	useragent: [
 		"Mozilla/5.0 (X11; Linux x86_64; Valve Steam Client [Steam Beta Update]/default/0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.5414.120 Safari/537.36",
 	],
 };
 
-// Keep these in sync with EParamType
-const vecWindowParams = [
+/**
+ * Keep in sync with {@link EParamType}
+ */
+const vecWindowParams: WindowParam_t[][] = [
 	["modal", "pinned"],
 	["browserType", "vrOverlayKey"],
 	["createflags"],
 	[
 		"browser",
-		// Note: this isn't anywhere in js, but BPM main menu, QAM &
-		// notification toasts get created with that.
 		"browserviewpopup",
 		"centerOnBrowserID",
 		"hwndParent",
@@ -112,7 +113,7 @@ const SettingsDialogSubHeader = ({ children }) => (
 );
 
 interface ParamProps {
-	name: string;
+	name: WindowParam_t;
 }
 
 interface ParamState<T> {
@@ -146,7 +147,7 @@ class Param<S, P = ParamProps> extends Component<
 
 	ShowWarningDialog(value: S) {
 		const strDescription = Localize(
-			"#ChangeWindowParams_Dialog_WarningDescription"
+			"#ChangeWindowParams_Dialog_WarningDescription",
 		);
 		const strTitle = Localize("#ChangeWindowParams_Dialog_WarningTitle");
 		const onOK = () => {
@@ -161,7 +162,7 @@ class Param<S, P = ParamProps> extends Component<
 				onOK={onOK}
 			/>,
 			pluginSelf.pSettingsDialog,
-			{ bNeverPopOut: true }
+			{ bNeverPopOut: true },
 		);
 	}
 }

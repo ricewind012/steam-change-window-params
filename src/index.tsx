@@ -16,6 +16,7 @@ import {
 	GetSettings,
 	ParseParam,
 	ParseParamForHTMLAttribute,
+	type WindowParamValue_t,
 } from "./settings";
 import { SettingsDialog } from "./settingsdialog";
 import type {
@@ -24,6 +25,7 @@ import type {
 	PopupCallback_t,
 	SteamPopup,
 } from "./sharedjscontextglobals/normal";
+import type { WindowParam_t, WindowParamMap_t } from "./types";
 
 declare const g_PopupManager: CPopupManager;
 declare const LocalizationManager: CLocalizationManager;
@@ -35,10 +37,16 @@ const pClassModules = {
 	gamepaddialog: findAllModules((e) => e.WithBottomSeparator)[0],
 	pagedsettings: findModule(
 		(e) =>
-			e.PagedSettingsDialog_Title && !e.PagedSettingsDialog_PageList_ShowTitle
+			e.PagedSettingsDialog_Title && !e.PagedSettingsDialog_PageList_ShowTitle,
 	),
 	settings: findModule((e) => e.SettingsDialogSubHeader),
 };
+
+/**
+ * because typescript sucks
+ */
+const GetTypedParams = (params: WindowParamMap_t<WindowParamValue_t>) =>
+	Object.entries(params) as [WindowParam_t, WindowParamValue_t][];
 
 const WaitForElement = async (sel: string, parent = document) =>
 	[...(await Millennium.findElement(parent, sel))][0];
@@ -62,7 +70,7 @@ async function InitLocalization() {
 	if (!pLocales[strLocale]) {
 		g_pLogger.Warn(
 			"No localization for locale %o, reverting to English",
-			strLocale
+			strLocale,
 		);
 	}
 
@@ -72,7 +80,7 @@ async function InitLocalization() {
 async function OnPopupCreated(pPopup: SteamPopup) {
 	const pPopupDoc = pPopup.m_popup.document;
 	const { params } = await GetSettings();
-	for (const [k, v] of Object.entries(params)) {
+	for (const [k, v] of GetTypedParams(params)) {
 		const elRoot = pPopupDoc.documentElement;
 		const value = ParseParamForHTMLAttribute(k, v);
 		elRoot.setAttribute(k, value);
@@ -84,7 +92,7 @@ async function OnPopupCreated(pPopup: SteamPopup) {
 
 	await WaitForElement(
 		`.${pClassModules.pagedsettings.Active}.MillenniumTab:first-child`,
-		pPopupDoc
+		pPopupDoc,
 	);
 	await WaitForElement(`.${pClassModules.gamepaddialog.Field}`, pPopupDoc);
 	const elFieldChildren = [
@@ -108,7 +116,7 @@ async function OnPopupCreated(pPopup: SteamPopup) {
 		>
 			{strTitle}
 		</DialogButton>,
-		elContainer
+		elContainer,
 	);
 }
 
@@ -118,7 +126,7 @@ export default async function PluginMain() {
 	const pOriginalOpen = window.open;
 	window.open = (url, target, features) => {
 		const pNewURL = new URL(url);
-		for (const [k, v] of Object.entries(params)) {
+		for (const [k, v] of GetTypedParams(params)) {
 			const value = ParseParam(k, v);
 			pNewURL.searchParams.set(k, value);
 		}
