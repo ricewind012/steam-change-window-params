@@ -51,11 +51,11 @@ export class CLogTime extends CLog {
 	}
 
 	TimeStart() {
-		this.m_unDate = Number(new Date());
+		this.m_unDate = Date.now();
 	}
 
 	TimeEnd() {
-		const unCurrentDate = Number(new Date());
+		const unCurrentDate = Date.now();
 		this.Log(
 			"%s: took %o seconds",
 			this.m_strLabel,

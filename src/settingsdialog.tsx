@@ -4,20 +4,23 @@ import {
 	DialogControlsSection,
 	Dropdown,
 	Field,
+	type FieldProps,
+	findModule,
 	IconsModule,
 	ModalPosition,
-	SidebarNavigation,
-	TextField,
-	Toggle,
-	findModule,
 	pluginSelf,
-	showModal,
-	type FieldProps,
+	SidebarNavigation,
 	type SidebarNavigationPage,
 	type SingleDropdownOption,
+	showModal,
+	TextField,
+	Toggle,
 } from "@steambrew/client";
 import { Component } from "react";
+
 import { CLog } from "./logger";
+import { BBCodeParser } from "./modules/bbcode";
+import { Localize } from "./modules/localization";
 import {
 	GetSettings,
 	mapParamEnums,
@@ -25,8 +28,6 @@ import {
 	SetSettingsKey,
 	type Settings,
 } from "./settings";
-import { BBCodeParser } from "./modules/bbcode";
-import { Localize } from "./modules/localization";
 
 enum EParamType {
 	Boolean,
@@ -145,7 +146,7 @@ class Param<S, P = ParamProps> extends Component<
 
 	ShowWarningDialog(value: S) {
 		const strDescription = Localize(
-			"#ChangeWindowParams_Dialog_WarningDescription",
+			"#ChangeWindowParams_Dialog_WarningDescription"
 		);
 		const strTitle = Localize("#ChangeWindowParams_Dialog_WarningTitle");
 		const onOK = () => {
@@ -160,7 +161,7 @@ class Param<S, P = ParamProps> extends Component<
 				onOK={onOK}
 			/>,
 			pluginSelf.pSettingsDialog,
-			{ bNeverPopOut: true },
+			{ bNeverPopOut: true }
 		);
 	}
 }
@@ -356,13 +357,13 @@ export function SettingsDialog() {
 		(param) => <TextParam name={param} />,
 	];
 	const vecPages: SidebarNavigationPage[] = k_vecParamTypes.map((type, i) => ({
-		icon: vecIcons[i],
-		title: Localize(`#ChangeWindowParams_Tab_${type}`),
 		content: (
 			<SettingsDialogBody>
 				{vecWindowParams[i].map((param) => vecContents[i](param))}
 			</SettingsDialogBody>
 		),
+		icon: vecIcons[i],
+		title: Localize(`#ChangeWindowParams_Tab_${type}`),
 	}));
 	const strTitle = Localize("#ChangeWindowParams_Dialog_SettingsTitle");
 

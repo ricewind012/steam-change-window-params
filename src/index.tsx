@@ -8,19 +8,19 @@ import {
 } from "@steambrew/client";
 import { render } from "react-dom";
 
-import { Localize } from "./modules/localization";
-import { SettingsDialog } from "./settingsdialog";
 import * as pLocales from "../locales";
-import { CLog } from "./logger";
 import plugin from "../plugin.json";
+import { CLog } from "./logger";
+import { Localize } from "./modules/localization";
 import {
 	GetSettings,
 	ParseParam,
 	ParseParamForHTMLAttribute,
 } from "./settings";
+import { SettingsDialog } from "./settingsdialog";
 import type {
-	CPopupManager,
 	LocalizationManager as CLocalizationManager,
+	CPopupManager,
 	PopupCallback_t,
 	SteamPopup,
 } from "./sharedjscontextglobals/normal";
@@ -35,7 +35,7 @@ const pClassModules = {
 	gamepaddialog: findAllModules((e) => e.WithBottomSeparator)[0],
 	pagedsettings: findModule(
 		(e) =>
-			e.PagedSettingsDialog_Title && !e.PagedSettingsDialog_PageList_ShowTitle,
+			e.PagedSettingsDialog_Title && !e.PagedSettingsDialog_PageList_ShowTitle
 	),
 	settings: findModule((e) => e.SettingsDialogSubHeader),
 };
@@ -62,7 +62,7 @@ async function InitLocalization() {
 	if (!pLocales[strLocale]) {
 		g_pLogger.Warn(
 			"No localization for locale %o, reverting to English",
-			strLocale,
+			strLocale
 		);
 	}
 
@@ -84,7 +84,7 @@ async function OnPopupCreated(pPopup: SteamPopup) {
 
 	await WaitForElement(
 		`.${pClassModules.pagedsettings.Active}.MillenniumTab:first-child`,
-		pPopupDoc,
+		pPopupDoc
 	);
 	await WaitForElement(`.${pClassModules.gamepaddialog.Field}`, pPopupDoc);
 	const elFieldChildren = [
@@ -108,7 +108,7 @@ async function OnPopupCreated(pPopup: SteamPopup) {
 		>
 			{strTitle}
 		</DialogButton>,
-		elContainer,
+		elContainer
 	);
 }
 

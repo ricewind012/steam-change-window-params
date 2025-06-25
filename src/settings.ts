@@ -1,4 +1,5 @@
 import { findModuleByExport, pluginSelf } from "@steambrew/client";
+
 import plugin from "../plugin.json";
 import {
 	EBrowserType,
@@ -37,7 +38,7 @@ export async function GetSettings(): Promise<Settings> {
 		k_strSettingsKey,
 	).catch(() => strDefaultJSON);
 
-	return JSON.parse(pSettings);
+	return JSON.parse(pSettings as string);
 }
 
 export function ParseParam(k: string, v: ParamValue_t) {

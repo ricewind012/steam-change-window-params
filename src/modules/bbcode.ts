@@ -1,5 +1,5 @@
-import type { FC, ReactNode } from "react";
 import { findModuleExport } from "@steambrew/client";
+import type { FC, ReactNode } from "react";
 
 interface BBCodeParserProps {
 	bShowShortSpeakerInfo?: boolean;
