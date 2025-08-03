@@ -1,16 +1,11 @@
 import {
 	ConfirmModal,
-	DialogBody,
-	DialogControlsSection,
 	Dropdown,
 	Field,
 	type FieldProps,
-	findModule,
-	IconsModule,
-	ModalPosition,
+	PanelSection,
+	PanelSectionRow,
 	pluginSelf,
-	SidebarNavigation,
-	type SidebarNavigationPage,
 	type SingleDropdownOption,
 	showModal,
 	TextField,
@@ -79,16 +74,8 @@ const vecWindowParams: WindowParam_t[][] = [
 	],
 	["restoredetails", "useragent"],
 ];
-const vecIcons = [
-	<IconsModule.Checkmark />,
-	<IconsModule.Library />,
-	<IconsModule.Flags />,
-	<IconsModule.Keyboard />,
-	<IconsModule.Keyboard />,
-];
 
-const g_pLogger = new CLog("settingsdialog");
-const pSettingsClasses = findModule((e) => e.SettingsDialogBodyFade);
+const g_pLogger = new CLog("settingspanel");
 
 // Globals for params
 const g_setFlags = new Set<number>();
@@ -101,12 +88,6 @@ const EnumToDropdown = (e: any) =>
 		data: e[1],
 		label: e[0],
 	})) as SingleDropdownOption[];
-
-const SettingsDialogBody = ({ children }) => (
-	<DialogBody className={pSettingsClasses.SettingsDialogBodyFade}>
-		{children}
-	</DialogBody>
-);
 
 const SettingsDialogSubHeader = ({ children }) => (
 	<div className="SettingsDialogSubHeader">{children}</div>
@@ -341,36 +322,30 @@ class TextParam extends Param<string, TextParamProps> {
 	}
 }
 
-export function SettingsDialog() {
+export function SettingsPanel() {
 	// Keep in sync with EParamType, too
 	const vecContents: PageMapFn_t[] = [
 		(param) => <BoolParam name={param} />,
 		(param) => <EnumParam name={param} />,
 		(param) => (
-			<DialogControlsSection>
-				<SettingsDialogSubHeader>{param}</SettingsDialogSubHeader>
-				{EnumToObject(mapParamFlags[param]).map(([member, flag]) => (
-					<FlagParam name={param} member={member} flag={flag} />
-				))}
-			</DialogControlsSection>
+			<PanelSectionRow>
+				<div>
+					<SettingsDialogSubHeader>{param}</SettingsDialogSubHeader>
+					{EnumToObject(mapParamFlags[param]).map(([member, flag]) => (
+						<FlagParam name={param} member={member} flag={flag} />
+					))}
+				</div>
+			</PanelSectionRow>
 		),
 		(param) => <TextParam bNumeric name={param} />,
 		(param) => <TextParam name={param} />,
 	];
-	const vecPages: SidebarNavigationPage[] = k_vecParamTypes.map((type, i) => ({
-		content: (
-			<SettingsDialogBody>
-				{vecWindowParams[i].map((param) => vecContents[i](param))}
-			</SettingsDialogBody>
-		),
-		icon: vecIcons[i],
-		title: Localize(`#ChangeWindowParams_Tab_${type}`),
-	}));
-	const strTitle = Localize("#ChangeWindowParams_Dialog_SettingsTitle");
 
-	return (
-		<ModalPosition>
-			<SidebarNavigation pages={vecPages} title={strTitle} />
-		</ModalPosition>
-	);
+	return k_vecParamTypes.map((type, i) => {
+		return (
+			<PanelSection title={Localize(`#ChangeWindowParams_Tab_${type}`)}>
+				{vecWindowParams[i].map((param) => vecContents[i](param))}
+			</PanelSection>
+		);
+	});
 }
