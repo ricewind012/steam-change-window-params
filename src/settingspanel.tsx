@@ -76,8 +76,7 @@ const vecWindowParams: WindowParam_t[][] = [
 ];
 
 const g_pLogger = new CLog("settingspanel");
-
-// Globals for params
+// For now createflags is the only bitflag param, so don't bother
 const g_setFlags = new Set<number>();
 
 const EnumToObject = (e: any) =>
@@ -218,11 +217,16 @@ class EnumParam extends Param<SingleDropdownOption> {
 
 	ChangeParam(value: SingleDropdownOption) {
 		super.ChangeParam(value.data.toString());
+		g_pLogger.Warn("ChangeParam(%o): %o", this.props.name, value);
 	}
 
 	render() {
 		const { name } = this.props;
 		const token = `#ChangeWindowParams_ParamDesc_${name}`;
+		const value = mapParamEnums[name];
+		const actualValue = Array.isArray(value)
+			? value.map((e) => ({ data: e, label: e }))
+			: EnumToDropdown(value);
 		// TODO desc in dropdown? idk
 
 		return (
@@ -230,8 +234,8 @@ class EnumParam extends Param<SingleDropdownOption> {
 				<Dropdown
 					contextMenuPositionOptions={{ bMatchWidth: false }}
 					onChange={(value) => this.ChangeParam(value)}
-					rgOptions={EnumToDropdown(mapParamEnums[name])}
-					selectedOption={this.state.value.label}
+					rgOptions={actualValue}
+					selectedOption={this.state.value.data}
 				/>
 			</ParamField>
 		);
@@ -251,7 +255,8 @@ class FlagParam extends Param<boolean, FlagParamProps> {
 
 	ConvertParamToState() {
 		const { flag } = this.props;
-		const param = this.m_pSettings.params[this.props.name] as number[];
+		// may not be set on empty settings
+		const param = (this.m_pSettings.params[this.props.name] || []) as number[];
 
 		// this method runs on mount anyway
 		for (const flag of param) {
@@ -327,6 +332,7 @@ export function SettingsPanel() {
 	const vecContents: PageMapFn_t[] = [
 		(param) => <BoolParam name={param} />,
 		(param) => <EnumParam name={param} />,
+		// TODO: retain flags option
 		(param) => (
 			<PanelSectionRow>
 				<div>
@@ -341,11 +347,9 @@ export function SettingsPanel() {
 		(param) => <TextParam name={param} />,
 	];
 
-	return k_vecParamTypes.map((type, i) => {
-		return (
-			<PanelSection title={Localize(`#ChangeWindowParams_Tab_${type}`)}>
-				{vecWindowParams[i].map((param) => vecContents[i](param))}
-			</PanelSection>
-		);
-	});
+	return k_vecParamTypes.map((type, i) => (
+		<PanelSection title={Localize(`#ChangeWindowParams_Tab_${type}`)}>
+			{vecWindowParams[i].map((param) => vecContents[i](param))}
+		</PanelSection>
+	));
 }
