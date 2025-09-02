@@ -1,17 +1,17 @@
 import {
 	ConfirmModal,
+	DialogButton,
 	Dropdown,
 	Field,
 	type FieldProps,
 	PanelSection,
 	PanelSectionRow,
-	pluginSelf,
 	type SingleDropdownOption,
 	showModal,
 	TextField,
 	Toggle,
 } from "@steambrew/client";
-import { Component } from "react";
+import { Component, useState } from "react";
 
 import { CLog } from "./logger";
 import { BBCodeParser } from "./modules/bbcode";
@@ -20,9 +20,16 @@ import {
 	GetSettings,
 	mapParamEnums,
 	mapParamFlags,
+	RemoveSettingsKey,
+	ResetSettings,
 	SetSettingsKey,
 	type Settings,
+	type WindowParamValue_t,
 } from "./settings";
+import {
+	EBrowserType,
+	EPopupCreationFlags,
+} from "./sharedjscontextglobals/normal";
 import type { WindowParam_t, WindowParamMap_t } from "./types";
 
 // biome-ignore lint/correctness/noUnusedVariables: Needed for demonstration
@@ -92,6 +99,59 @@ const SettingsDialogSubHeader = ({ children }) => (
 	<div className="SettingsDialogSubHeader">{children}</div>
 );
 
+interface LocalizedButtonProps {
+	onClick: () => void;
+	strToken: string;
+}
+
+function LocalizedButton(props: LocalizedButtonProps) {
+	const { onClick, strToken } = props;
+	return <DialogButton onClick={onClick}>{Localize(strToken)}</DialogButton>;
+}
+
+function AreTwoArraysEqual(lhs: any[], rhs: any[]) {
+	if (!lhs || !rhs) {
+		return false;
+	}
+	if (!Array.isArray(lhs) || !Array.isArray(rhs)) {
+		return false;
+	}
+	if (lhs.length !== rhs.length) {
+		return false;
+	}
+
+	for (let i = 0; i < lhs.length; i++) {
+		if (lhs[i] !== rhs[i]) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+/**
+ * @param strDescription Loc token
+ * @param strTitle Loc token
+ * @param onOK
+ */
+function ShowWarningDialog(
+	strTitle: string,
+	strDescription: string,
+	onOK: () => void,
+) {
+	const wnd = g_PopupManager.GetExistingPopup("SP Desktop_uid0").m_popup;
+	showModal(
+		<ConfirmModal
+			bDestructiveWarning
+			strTitle={Localize(strTitle)}
+			strDescription={<BBCodeParser text={Localize(strDescription)} />}
+			onOK={onOK}
+		/>,
+		wnd,
+		{ bNeverPopOut: true },
+	);
+}
+
 interface ParamProps {
 	name: WindowParam_t;
 }
@@ -123,27 +183,6 @@ class Param<S, P = ParamProps> extends Component<
 		this.setState({ value });
 		SetSettingsKey(name, value as string, "params");
 		g_pLogger.Log("Setting param %o to value %o", name, value);
-	}
-
-	ShowWarningDialog(value: S) {
-		const strDescription = Localize(
-			"#ChangeWindowParams_Dialog_WarningDescription",
-		);
-		const strTitle = Localize("#ChangeWindowParams_Dialog_WarningTitle");
-		const onOK = () => {
-			this.ChangeParam(value);
-		};
-
-		showModal(
-			<ConfirmModal
-				bDestructiveWarning
-				strTitle={strTitle}
-				strDescription={<BBCodeParser text={strDescription} />}
-				onOK={onOK}
-			/>,
-			pluginSelf.pSettingsDialog,
-			{ bNeverPopOut: true },
-		);
 	}
 }
 
@@ -277,13 +316,21 @@ class FlagParam extends Param<boolean, FlagParamProps> {
 
 	OnChange(value: boolean) {
 		const { name, member } = this.props;
+		const onOK = () => {
+			this.ChangeParam(value);
+		};
+
 		const bShowDialog = value && k_pWarners[name]?.some((e) => member === e);
 		if (bShowDialog) {
-			this.ShowWarningDialog(value);
+			ShowWarningDialog(
+				"#ChangeWindowParams_Dialog_WarningTitle",
+				"#ChangeWindowParams_Dialog_WarningDescription",
+				onOK,
+			);
 			return;
 		}
 
-		this.ChangeParam(value);
+		onOK();
 	}
 
 	render() {
@@ -327,7 +374,101 @@ class TextParam extends Param<string, TextParamProps> {
 	}
 }
 
+interface SimpleParamProps {
+	/**
+	 * Params to change for this field.
+	 */
+	mapParams: WindowParamMap_t<WindowParamValue_t>;
+
+	/**
+	 * For the `#ChangeWindowParams_Verified_${name}` loc token.
+	 */
+	strName: string;
+}
+
+interface SimpleParamState {
+	value: boolean;
+}
+
+/**
+ * A user friendly toggle field that has *confirmed* functionality, i.e. without
+ * side effects.
+ */
+class SimpleParam extends Component<SimpleParamProps, SimpleParamState> {
+	state: SimpleParamState = { value: false };
+
+	async componentDidMount() {
+		const { mapParams } = this.props;
+		const { simpleParams } = await GetSettings();
+		const value = Object.entries(mapParams).every(([param, paramValue]) => {
+			const lhs = simpleParams[param];
+			const rhs = paramValue;
+
+			return Array.isArray(paramValue)
+				? AreTwoArraysEqual(lhs, rhs as number[])
+				: Number(lhs) === Number(rhs);
+		});
+
+		this.setState({ value });
+	}
+
+	async OnChange(value: boolean) {
+		const { mapParams } = this.props;
+		for (const [param, paramValue] of Object.entries(mapParams)) {
+			if (value) {
+				await SetSettingsKey(param, paramValue, "simpleParams");
+				g_pLogger.Log("Setting param %o to value %o", param, paramValue);
+			} else {
+				await RemoveSettingsKey(param, "simpleParams");
+				g_pLogger.Log("Removing %o from %o", param, "simpleParams");
+			}
+		}
+		this.setState({ value });
+	}
+
+	render() {
+		const { strName } = this.props;
+		const label = Localize(`#ChangeWindowParams_Verified_${strName}`);
+
+		return (
+			<Field label={label}>
+				<Toggle
+					onChange={(value) => this.OnChange(value)}
+					value={this.state.value}
+				/>
+			</Field>
+		);
+	}
+}
+
+function VerifiedSettings() {
+	return (
+		<PanelSection title={Localize("#ChangeWindowParams_Tab_Verified")}>
+			<SimpleParam
+				mapParams={{ browserType: EBrowserType.DirectHWND.toString() }}
+				strName="SystemTitlebar"
+			/>
+			<SimpleParam
+				mapParams={{
+					createflags: [
+						// TODO: not needed here, make a retain params option
+						EPopupCreationFlags.Resizable,
+						EPopupCreationFlags.Composited,
+						EPopupCreationFlags.TransparentParentWindow,
+					],
+				}}
+				strName="TransparentWindow"
+			/>
+			<SimpleParam
+				mapParams={{ minheight: "0", minwidth: "0" }}
+				strName="NoSizeLimit"
+			/>
+		</PanelSection>
+	);
+}
+
 export function SettingsPanel() {
+	const [bAdvancedMode, setAdvancedMode] = useState(false);
 	// Keep in sync with EParamType, too
 	const vecContents: PageMapFn_t[] = [
 		(param) => <BoolParam name={param} />,
@@ -347,9 +488,38 @@ export function SettingsPanel() {
 		(param) => <TextParam name={param} />,
 	];
 
-	return k_vecParamTypes.map((type, i) => (
-		<PanelSection title={Localize(`#ChangeWindowParams_Tab_${type}`)}>
-			{vecWindowParams[i].map((param) => vecContents[i](param))}
-		</PanelSection>
-	));
+	return (
+		<>
+			<PanelSection>
+				<LocalizedButton
+					onClick={() => {
+						ResetSettings();
+						SteamClient.Browser.RestartJSContext();
+					}}
+					strToken="#ChangeWindowParams_Buttons_ResetSettings"
+				/>
+			</PanelSection>
+			<VerifiedSettings />
+			{!bAdvancedMode ? (
+				<PanelSection>
+					<LocalizedButton
+						onClick={() => {
+							ShowWarningDialog(
+								"#ChangeWindowParams_AdvancedMode_Title",
+								"#ChangeWindowParams_AdvancedMode_Description",
+								() => setAdvancedMode(true),
+							);
+						}}
+						strToken="#ChangeWindowParams_Buttons_AdvancedMode"
+					/>
+				</PanelSection>
+			) : (
+				k_vecParamTypes.map((type, i) => (
+					<PanelSection title={Localize(`#ChangeWindowParams_Tab_${type}`)}>
+						{vecWindowParams[i].map((param) => vecContents[i](param))}
+					</PanelSection>
+				))
+			)}
+		</>
+	);
 }

@@ -1,10 +1,16 @@
 {
+	"ChangeWindowParams_AdvancedMode_Description": "Anything not shown above may have [b]unintended side effects[/b] if you don't know what you're doing!",
+	"ChangeWindowParams_AdvancedMode_Title": "Advanced Mode",
+
+	"ChangeWindowParams_Buttons_AdvancedMode": "Enable advanced mode",
+	"ChangeWindowParams_Buttons_ResetSettings": "Reset settings",
+
 	"ChangeWindowParams_Dialog_SettingsTitle": "Plugin Settings",
 	"ChangeWindowParams_Dialog_WarningDescription": "The next time you open a window or restart Steam, [b]NO WINDOWS[/b] will appear (or something else may happen) and you will have to revert it through other means.",
 	"ChangeWindowParams_Dialog_WarningTitle": "Warning",
 
 	"ChangeWindowParams_EnumDesc_browserType_ChildHWNDNative": "",
-	"ChangeWindowParams_EnumDesc_browserType_DirectHWND": "A normal window (with native borders, titlebars, etc.)",
+	"ChangeWindowParams_EnumDesc_browserType_DirectHWND": "A normal window (with system titlebar)",
 	"ChangeWindowParams_EnumDesc_browserType_DirectHWND_Borderless": "A borderless window",
 	"ChangeWindowParams_EnumDesc_browserType_DirectHWND_Hidden": "",
 	"ChangeWindowParams_EnumDesc_browserType_OffScreen": "Window does not appear but still gets created (like SharedJSContext)",
@@ -12,32 +18,34 @@
 	"ChangeWindowParams_EnumDesc_browserType_OpenVROverlay": "",
 	"ChangeWindowParams_EnumDesc_browserType_OpenVROverlay_Dashboard": "",
 	"ChangeWindowParams_EnumDesc_browserType_OpenVROverlay_Subview": "",
-	"ChangeWindowParams_FlagDesc_createflags_AlwaysOnTop": "",
+
+	"ChangeWindowParams_FlagDesc_createflags_AlwaysOnTop": "Window is always on top of other windows",
 	"ChangeWindowParams_FlagDesc_createflags_ApplyBrowserScaleToDimensions": "",
-	"ChangeWindowParams_FlagDesc_createflags_Composited": "Posibly Windows only",
+	"ChangeWindowParams_FlagDesc_createflags_Composited": "",
 	"ChangeWindowParams_FlagDesc_createflags_ForceRoundedCorners": "",
-	"ChangeWindowParams_FlagDesc_createflags_FullScreen": "",
-	"ChangeWindowParams_FlagDesc_createflags_Fullscreen_Exclusive": "",
+	"ChangeWindowParams_FlagDesc_createflags_FullScreen": "Window appears fullscreen",
+	"ChangeWindowParams_FlagDesc_createflags_Fullscreen_Exclusive": "Exclusive fullscreen mode on Windows",
 	"ChangeWindowParams_FlagDesc_createflags_Hidden": "Window does not appear but still gets created",
 	"ChangeWindowParams_FlagDesc_createflags_IgnoreSavedSize": "",
 	"ChangeWindowParams_FlagDesc_createflags_IgnoreSteamDisplayScale": "",
 	"ChangeWindowParams_FlagDesc_createflags_Maximized": "Initially maximized",
 	"ChangeWindowParams_FlagDesc_createflags_Minimized": "Initially minimized",
 	"ChangeWindowParams_FlagDesc_createflags_NoMinimize": "",
-
 	"ChangeWindowParams_FlagDesc_createflags_None": " ",
 	"ChangeWindowParams_FlagDesc_createflags_NoRoundedCorners": "Possibly macOS/Windows 11 only",
 	"ChangeWindowParams_FlagDesc_createflags_NoTaskbarIcon": "Window does not appear in taskbar",
-	"ChangeWindowParams_FlagDesc_createflags_NotFocusable": "",
-	"ChangeWindowParams_FlagDesc_createflags_NoWindowShadow": "",
+	"ChangeWindowParams_FlagDesc_createflags_NotFocusable": "Window is not focusable",
+	"ChangeWindowParams_FlagDesc_createflags_NoWindowShadow": "Window will not have a shadow",
 	"ChangeWindowParams_FlagDesc_createflags_OverrideRedirect": "",
 	"ChangeWindowParams_FlagDesc_createflags_PopUpMenuHint": "Possibly context menu stuff",
-	"ChangeWindowParams_FlagDesc_createflags_Resizable": "",
+	"ChangeWindowParams_FlagDesc_createflags_Resizable": "Window is resizable",
 	"ChangeWindowParams_FlagDesc_createflags_ScalePosition": "",
 	"ChangeWindowParams_FlagDesc_createflags_ScaleSize": "",
 	"ChangeWindowParams_FlagDesc_createflags_TooltipHint": "",
 	"ChangeWindowParams_FlagDesc_createflags_TransparentParentWindow": "",
+
 	"ChangeWindowParams_Menu_Reset": "Reset Plugin Settings",
+
 	"ChangeWindowParams_ParamDesc_browser": "Browser ID",
 	"ChangeWindowParams_ParamDesc_browserType": "Window type",
 	"ChangeWindowParams_ParamDesc_browserviewpopup": "Browser ID? Requires \"requestid\" and \"parentpopup\"",
@@ -63,5 +71,10 @@
 	"ChangeWindowParams_Tab_Enums": "Enums",
 	"ChangeWindowParams_Tab_Flags": "Flags",
 	"ChangeWindowParams_Tab_Numbers": "Numbers",
-	"ChangeWindowParams_Tab_Strings": "Strings"
+	"ChangeWindowParams_Tab_Strings": "Strings",
+	"ChangeWindowParams_Tab_Verified": "Verified Settings",
+
+	"ChangeWindowParams_Verified_NoSizeLimit": "No window size limit",
+	"ChangeWindowParams_Verified_SystemTitlebar": "Use system titlebar",
+	"ChangeWindowParams_Verified_TransparentWindow": "Transparent windows"
 }

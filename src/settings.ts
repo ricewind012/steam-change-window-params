@@ -7,6 +7,8 @@ import {
 } from "./sharedjscontextglobals/normal";
 import type { WindowParam_t, WindowParamMap_t } from "./types";
 
+export type GetParamsResult_t = [WindowParam_t, WindowParamValue_t][];
+
 /**
  * `number[]` - flags,
  * `string` - everything else.
@@ -15,9 +17,14 @@ export type WindowParamValue_t = number[] | string;
 
 export interface Settings {
 	params: WindowParamMap_t<WindowParamValue_t>;
+	simpleParams: WindowParamMap_t<WindowParamValue_t>;
 }
 
 const k_strSettingsKey = `${plugin.name}_Settings`;
+const k_pDefaultJSON: Settings = {
+	params: {},
+	simpleParams: {},
+};
 
 export const mapParamEnums: WindowParamMap_t<object> = {
 	browserType: EBrowserType,
@@ -30,10 +37,20 @@ export const mapParamFlags: WindowParamMap_t<object> = {
 	createflags: EPopupCreationFlags,
 };
 
+/**
+ * Gets params from settings, proritizing `simpleParams` over `params`, since
+ * they're not compatible.
+ */
+export async function GetParams() {
+	const { params, simpleParams } = await GetSettings();
+	const bUseSimpleParams = Object.keys(simpleParams).length !== 0;
+	const pResult = bUseSimpleParams ? simpleParams : params;
+
+	return Object.entries(pResult) as GetParamsResult_t;
+}
+
 export async function GetSettings(): Promise<Settings> {
-	const strDefaultJSON = JSON.stringify({
-		params: {},
-	});
+	const strDefaultJSON = JSON.stringify(k_pDefaultJSON);
 	const pSettings = await SteamClient.MachineStorage.GetJSON(
 		k_strSettingsKey,
 	).catch(() => strDefaultJSON);
@@ -85,7 +102,16 @@ export async function SetSettingsKey(
 	SteamClient.MachineStorage.SetObject(k_strSettingsKey, pSettings);
 }
 
+export async function RemoveSettingsKey(key: string, field: keyof Settings) {
+	const pSettings = await GetSettings();
+	delete pSettings[field][key];
+
+	SteamClient.MachineStorage.SetObject(k_strSettingsKey, pSettings);
+}
+
+pluginSelf.GetParams = GetParams;
 pluginSelf.GetSettings = GetSettings;
 pluginSelf.ParseParam = ParseParam;
 pluginSelf.ResetSettings = ResetSettings;
 pluginSelf.SetSettingsKey = SetSettingsKey;
+pluginSelf.RemoveSettingsKey = RemoveSettingsKey;
