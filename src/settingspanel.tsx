@@ -86,9 +86,11 @@ const g_pLogger = new CLog("settingspanel");
 // For now createflags is the only bitflag param, so don't bother
 const g_setFlags = new Set<number>();
 
+// biome-ignore lint/suspicious/noExplicitAny: intentional
 const EnumToObject = (e: any) =>
 	Object.entries(e).filter((e) => typeof e[1] === "number") as EnumObject_t;
 
+// biome-ignore lint/suspicious/noExplicitAny: intentional
 const EnumToDropdown = (e: any) =>
 	EnumToObject(e).map((e) => ({
 		data: e[1],
@@ -109,6 +111,7 @@ function LocalizedButton(props: LocalizedButtonProps) {
 	return <DialogButton onClick={onClick}>{Localize(strToken)}</DialogButton>;
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: intentional
 function AreTwoArraysEqual(lhs: any[], rhs: any[]) {
 	if (!lhs || !rhs) {
 		return false;
