@@ -1,9 +1,10 @@
 {
 	"$schema": "https://raw.githubusercontent.com/SteamClientHomebrew/Millennium/main/src/sys/plugin-schema.json",
-	"name": "change_window_params",
+	"name": "steam-change-window-params",
 	"common_name": "Change Window Parameters",
-	"description": "Modify how Steam displays windows.",
-	"version": "1.1.0",
+	"description": "Modify how Steam displays windows",
+	"include": ["./locales"],
+	"version": "1.0.0",
 	"frontend": "src",
 	"useBackend": false
 }

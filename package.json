@@ -1,7 +1,7 @@
 {
 	"name": "steam-change-window-params",
-	"version": "1.1.0",
-	"description": "Change Steam's window parameters",
+	"version": "1.0.0",
+	"description": "Modify how Steam displays windows",
 	"main": "./src/index.tsx",
 	"type": "module",
 	"scripts": {

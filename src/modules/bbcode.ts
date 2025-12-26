@@ -10,6 +10,5 @@ interface BBCodeParserProps {
 }
 
 export const BBCodeParser: FC<BBCodeParserProps> = findModuleExport(
-	(m) =>
-		typeof m === "function" && m.toString().includes("this.ElementAccumulator"),
+	(m) => typeof m === "function" && m.toString().includes("ElementAccumulator"),
 );

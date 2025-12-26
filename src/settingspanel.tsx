@@ -11,7 +11,12 @@ import {
 	TextField,
 	Toggle,
 } from "@steambrew/client";
-import { Component, useState } from "react";
+import {
+	Component,
+	type PropsWithChildren,
+	type ReactNode,
+	useState,
+} from "react";
 
 import { CLog } from "./logger";
 import { BBCodeParser } from "./modules/bbcode";
@@ -42,7 +47,7 @@ enum EParamType {
 }
 
 type EnumObject_t = [string, number][];
-type PageMapFn_t = (param: WindowParam_t) => JSX.Element;
+type PageMapFn_t = (param: WindowParam_t) => ReactNode;
 
 const k_vecParamTypes = ["Booleans", "Enums", "Flags", "Numbers", "Strings"];
 const k_pDefaultDropdownValue: SingleDropdownOption = { data: 0, label: "--" };
@@ -97,7 +102,7 @@ const EnumToDropdown = (e: any) =>
 		label: e[0],
 	})) as SingleDropdownOption[];
 
-const SettingsDialogSubHeader = ({ children }) => (
+const SettingsDialogSubHeader = ({ children }: PropsWithChildren) => (
 	<div className="SettingsDialogSubHeader">{children}</div>
 );
 
