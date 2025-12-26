@@ -1,6 +1,6 @@
 import { definePlugin, IconsModule } from "@steambrew/client";
 
-import * as pLocales from "../locales";
+import { PLUGIN_PATH } from "./consts";
 import { CLog } from "./logger";
 import { GetParams, ParseParam, ParseParamForHTMLAttribute } from "./settings";
 import { SettingsPanel } from "./settingspanel";
@@ -17,17 +17,25 @@ declare global {
 
 const g_pLogger = new CLog("index");
 
-async function InitLocalization() {
-	const strLocale = await SteamClient.Settings.GetCurrentLanguage();
-	const pTokens = pLocales[strLocale] || pLocales.english;
-	if (!pLocales[strLocale]) {
-		g_pLogger.Warn(
-			"No localization for locale %o, reverting to English",
-			strLocale,
-		);
-	}
+/**
+ * Replacement function to avoid JSON modules because of localization - it's
+ * easier to just create 1 file instead of doing the same thing, then typing an
+ * import somewhere here, checking if it works, and so on.
+ *
+ * @param path A path that's relative to the plugin's path.
+ */
+async function ImportJSON(path: string) {
+	return (await fetch(`${PLUGIN_PATH}/${path}`)).json();
+}
 
-	LocalizationManager.AddTokens(pTokens);
+async function InitLocalization() {
+	const lang = await SteamClient.Settings.GetCurrentLanguage();
+	const tokens = await ImportJSON(`locales/${lang}.json`).catch(() => {
+		g_pLogger.Warn("No %o locale, reverting to English", lang);
+		return ImportJSON(`locales/english.json`);
+	});
+
+	LocalizationManager.AddTokens(tokens);
 }
 
 async function OnPopupCreated(pPopup: SteamPopup) {

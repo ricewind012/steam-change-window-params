@@ -1,7 +1,4 @@
-import plugin from "../plugin.json";
-
-const k_strLogStyle = "padding: 0 1ch";
-const k_strPluginName = plugin.name;
+import { LOG_STYLE, PLUGIN_NAME } from "./consts";
 
 export class CLog {
 	public m_strScope: string;
@@ -10,28 +7,33 @@ export class CLog {
 		this.m_strScope = strScope;
 	}
 
+	// biome-ignore lint/suspicious/noExplicitAny: console.log() args
 	#Print(strMethod: string, strFormat: string, ...args: any[]) {
 		console[strMethod](
-			`%c${k_strPluginName}%c${this.m_strScope}%c ${strFormat}`,
-			`${k_strLogStyle}; background-color: black; color: white`,
-			`${k_strLogStyle}; background-color: #404040; color: #eee`,
+			`%c${PLUGIN_NAME}%c${this.m_strScope}%c ${strFormat}`,
+			`${LOG_STYLE}; background-color: black; color: white`,
+			`${LOG_STYLE}; background-color: #404040; color: #eee`,
 			"",
 			...args,
 		);
 	}
 
+	// biome-ignore lint/suspicious/noExplicitAny: console.log() args
 	Log(strFormat: string, ...args: any[]) {
 		this.#Print("log", strFormat, ...args);
 	}
 
+	// biome-ignore lint/suspicious/noExplicitAny: console.log() args
 	Warn(strFormat: string, ...args: any[]) {
 		this.#Print("warn", strFormat, ...args);
 	}
 
+	// biome-ignore lint/suspicious/noExplicitAny: console.log() args
 	Error(strFormat: string, ...args: any[]) {
 		this.#Print("error", strFormat, ...args);
 	}
 
+	// biome-ignore lint/suspicious/noExplicitAny: console.log() args
 	Assert(bAssertion: boolean, strFormat: string, ...args: any[]) {
 		if (bAssertion) {
 			return;
