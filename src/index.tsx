@@ -60,6 +60,15 @@ export default definePlugin(async () => {
 	// TODO injects too slow lol lmao
 	const pOriginalOpen = window.open;
 	window.open = (url, target, features) => {
+		const bIsBPMWindow =
+			target === "SP BPM_uid0" ||
+			target.startsWith("MainMenu_") ||
+			target.startsWith("QuickAccess_");
+		if (bIsBPMWindow) {
+			g_pLogger.Log("window.open: ignoring %o, is a BPM Window", target);
+			return pOriginalOpen(url, target, features);
+		}
+
 		const pNewURL = new URL(url);
 
 		const bOverlay = target.startsWith("desktopoverlay_");
