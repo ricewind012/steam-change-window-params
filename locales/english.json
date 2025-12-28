@@ -3,7 +3,10 @@
 	"ChangeWindowParams_AdvancedMode_Title": "Advanced Mode",
 
 	"ChangeWindowParams_Buttons_AdvancedMode": "Enable advanced mode",
+	"ChangeWindowParams_Buttons_PreviewWindow": "Open window",
 	"ChangeWindowParams_Buttons_ResetSettings": "Reset settings",
+	"ChangeWindowParams_Buttons_RestartSteam": "Restart Steam UI",
+	"ChangeWindowParams_ButtonsHeader": "Actions",
 
 	"ChangeWindowParams_Dialog_SettingsTitle": "Plugin Settings",
 	"ChangeWindowParams_Dialog_WarningDescription": "The next time you open a window or restart Steam, [b]NO WINDOWS[/b] will appear (or something else may happen) and you will have to revert it through other means.",
@@ -74,6 +77,9 @@
 	"ChangeWindowParams_Tab_Strings": "Strings",
 	"ChangeWindowParams_Tab_Verified": "Verified Settings",
 
+	"ChangeWindowParams_Verified_ExcludeMenus": "Exclude menus",
+	"ChangeWindowParams_Verified_ExcludeNotifications": "Exclude notifications",
+	"ChangeWindowParams_Verified_ExcludeOverlay": "Exclude overlay (and its windows)",
 	"ChangeWindowParams_Verified_NoSizeLimit": "No window size limit",
 	"ChangeWindowParams_Verified_SystemTitlebar": "Use system titlebar",
 	"ChangeWindowParams_Verified_TransparentWindow": "Transparent windows"

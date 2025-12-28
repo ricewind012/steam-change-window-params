@@ -16,12 +16,18 @@ export type GetParamsResult_t = [WindowParam_t, WindowParamValue_t][];
 export type WindowParamValue_t = number[] | string;
 
 export interface Settings {
+	options: {
+		ExcludeMenus?: boolean;
+		ExcludeNotifications?: boolean;
+		ExcludeOverlay?: boolean;
+	};
 	params: WindowParamMap_t<WindowParamValue_t>;
 	simpleParams: WindowParamMap_t<WindowParamValue_t>;
 }
 
 const k_strSettingsKey = `${plugin.name}_Settings`;
 const k_pDefaultJSON: Settings = {
+	options: {},
 	params: {},
 	simpleParams: {},
 };
@@ -38,7 +44,7 @@ export const mapParamFlags: WindowParamMap_t<object> = {
 };
 
 /**
- * Gets params from settings, proritizing `simpleParams` over `params`, since
+ * Gets params from settings, prioritizing `simpleParams` over `params`, since
  * they're not compatible.
  */
 export async function GetParams() {
@@ -55,7 +61,7 @@ export async function GetSettings(): Promise<Settings> {
 		k_strSettingsKey,
 	).catch(() => strDefaultJSON);
 
-	return JSON.parse(pSettings as string);
+	return Object.assign(k_pDefaultJSON, JSON.parse(pSettings as string));
 }
 
 export function ParseParam(k: WindowParam_t, v: WindowParamValue_t) {
@@ -91,18 +97,20 @@ export function ResetSettings() {
 	SteamClient.MachineStorage.DeleteKey(k_strSettingsKey);
 }
 
-export async function SetSettingsKey(
-	key: string,
-	value: WindowParamValue_t,
-	field: keyof Settings,
-) {
+export async function SetSettingsKey<
+	F extends keyof Settings,
+	K extends keyof Settings[F],
+>(field: F, key: K, value: Settings[F][K]) {
 	const pSettings = await GetSettings();
 	pSettings[field][key] = value;
 
 	SteamClient.MachineStorage.SetObject(k_strSettingsKey, pSettings);
 }
 
-export async function RemoveSettingsKey(key: string, field: keyof Settings) {
+export async function RemoveSettingsKey<F extends keyof Settings>(
+	field: F,
+	key: keyof Settings[F],
+) {
 	const pSettings = await GetSettings();
 	delete pSettings[field][key];
 

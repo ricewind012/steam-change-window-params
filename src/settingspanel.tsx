@@ -1,10 +1,9 @@
 import {
 	ConfirmModal,
-	DialogButton,
+	DialogControlsSection,
 	Dropdown,
 	Field,
 	type FieldProps,
-	PanelSection,
 	PanelSectionRow,
 	type SingleDropdownOption,
 	showModal,
@@ -18,6 +17,7 @@ import {
 	useState,
 } from "react";
 
+import { LocalizedButton, LocalizedPanelSection } from "./localized";
 import { CLog } from "./logger";
 import { BBCodeParser } from "./modules/bbcode";
 import { Localize } from "./modules/localization";
@@ -58,9 +58,7 @@ const k_pWarners: WindowParamMap_t<string[]> = {
 
 const mapParamDescriptionArgs: WindowParamMap_t<string[]> = {
 	restoredetails: ["1&x=604&y=257&w=1010&h=600"],
-	useragent: [
-		"Mozilla/5.0 (X11; Linux x86_64; Valve Steam Client [Steam Beta Update]/default/0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.5414.120 Safari/537.36",
-	],
+	useragent: [navigator.userAgent],
 };
 
 /**
@@ -105,16 +103,6 @@ const EnumToDropdown = (e: any) =>
 const SettingsDialogSubHeader = ({ children }: PropsWithChildren) => (
 	<div className="SettingsDialogSubHeader">{children}</div>
 );
-
-interface LocalizedButtonProps {
-	onClick: () => void;
-	strToken: string;
-}
-
-function LocalizedButton(props: LocalizedButtonProps) {
-	const { onClick, strToken } = props;
-	return <DialogButton onClick={onClick}>{Localize(strToken)}</DialogButton>;
-}
 
 // biome-ignore lint/suspicious/noExplicitAny: intentional
 function AreTwoArraysEqual(lhs: any[], rhs: any[]) {
@@ -189,7 +177,7 @@ class Param<S, P = ParamProps> extends Component<
 	ChangeParam(value: S) {
 		const { name } = this.props;
 		this.setState({ value });
-		SetSettingsKey(name, value as string, "params");
+		SetSettingsKey("params", name, value as string);
 		g_pLogger.Log("Setting param %o to value %o", name, value);
 	}
 }
@@ -318,7 +306,7 @@ class FlagParam extends Param<boolean, FlagParamProps> {
 		g_setFlags[value ? "add" : "delete"](flag);
 		const vecAllFlags = [...g_setFlags];
 		this.setState({ value });
-		SetSettingsKey(name, vecAllFlags, "params");
+		SetSettingsKey("params", name, vecAllFlags);
 		g_pLogger.Log("%o => %o", name, vecAllFlags);
 	}
 
@@ -382,64 +370,70 @@ class TextParam extends Param<string, TextParamProps> {
 	}
 }
 
-interface SimpleParamProps {
+interface BooleanSettingFieldProps {
 	/**
-	 * Params to change for this field.
+	 * {@link FieldProps.label} is not used, so use {@link strName} instead.
 	 */
-	mapParams: WindowParamMap_t<WindowParamValue_t>;
+	fieldProps?: Exclude<FieldProps, "label">;
 
 	/**
-	 * For the `#ChangeWindowParams_Verified_${name}` loc token.
+	 * Part of the `#ChangeWindowParams_Verified_${name}` loc token.
 	 */
 	strName: string;
 }
 
-interface SimpleParamState {
+interface BooleanSettingFieldState {
 	value: boolean;
 }
 
 /**
- * A user friendly toggle field that has *confirmed* functionality, i.e. without
- * side effects.
+ * Base component for boolean fields in verified settings, as some options are
+ * changed differently.
  */
-class SimpleParam extends Component<SimpleParamProps, SimpleParamState> {
-	state: SimpleParamState = { value: false };
+abstract class BooleanSettingFieldBase<
+	F extends keyof Settings,
+	// biome-ignore lint/complexity/noBannedTypes: stfu
+	P = {},
+> extends Component<BooleanSettingFieldProps & P, BooleanSettingFieldState> {
+	/**
+	 * The settings field to use on change.
+	 */
+	abstract m_strSettingsField: F;
+
+	state: BooleanSettingFieldState = { value: false };
+
+	/**
+	 * @returns the initial value to set on render.
+	 */
+	abstract GetInitialValue(): Promise<boolean>;
+
+	abstract OnChange(value: boolean): Promise<void>;
 
 	async componentDidMount() {
-		const { mapParams } = this.props;
-		const { simpleParams } = await GetSettings();
-		const value = Object.entries(mapParams).every(([param, paramValue]) => {
-			const lhs = simpleParams[param];
-			const rhs = paramValue;
-
-			return Array.isArray(paramValue)
-				? AreTwoArraysEqual(lhs, rhs as number[])
-				: Number(lhs) === Number(rhs);
-		});
-
+		const value = await this.GetInitialValue();
 		this.setState({ value });
 	}
 
-	async OnChange(value: boolean) {
-		const { mapParams } = this.props;
-		for (const [param, paramValue] of Object.entries(mapParams)) {
-			if (value) {
-				await SetSettingsKey(param, paramValue, "simpleParams");
-				g_pLogger.Log("Setting param %o to value %o", param, paramValue);
-			} else {
-				await RemoveSettingsKey(param, "simpleParams");
-				g_pLogger.Log("Removing %o from %o", param, "simpleParams");
-			}
+	async ToggleSetting<K extends keyof Settings[F]>(
+		key: K,
+		value: Settings[F][K],
+	) {
+		if (value) {
+			await SetSettingsKey(this.m_strSettingsField, key, value);
+			g_pLogger.Log("Setting param %o to value %o", key, value);
+		} else {
+			await RemoveSettingsKey(this.m_strSettingsField, key);
+			g_pLogger.Log("Removing %o from %o", key, this.m_strSettingsField);
 		}
-		this.setState({ value });
 	}
 
 	render() {
-		const { strName } = this.props;
-		const label = Localize(`#ChangeWindowParams_Verified_${strName}`);
+		const { fieldProps, strName } = this.props;
+		// for whatever reason ts thinks it may be a symbol... wtf is this shit?
+		const label = Localize(`#ChangeWindowParams_Verified_${strName as string}`);
 
 		return (
-			<Field label={label}>
+			<Field label={label} {...fieldProps}>
 				<Toggle
 					onChange={(value) => this.OnChange(value)}
 					value={this.state.value}
@@ -449,12 +443,79 @@ class SimpleParam extends Component<SimpleParamProps, SimpleParamState> {
 	}
 }
 
+class BooleanSetting extends BooleanSettingFieldBase<"options"> {
+	// ????? wtf ts
+	m_strSettingsField: "options" = "options";
+
+	async GetInitialValue() {
+		const { strName } = this.props;
+		const { options } = await GetSettings();
+		return options[strName];
+	}
+
+	async OnChange(value: boolean) {
+		const { strName } = this.props;
+		await this.ToggleSetting(strName as keyof Settings["options"], value);
+		this.setState({ value });
+	}
+}
+
+interface SimpleParamProps extends BooleanSettingFieldProps {
+	/**
+	 * Params to change on toggle.
+	 */
+	mapParams: WindowParamMap_t<WindowParamValue_t>;
+}
+
+/**
+ * A user friendly toggle field that has *confirmed* functionality, i.e. without
+ * side effects.
+ */
+class SimpleParam extends BooleanSettingFieldBase<
+	"simpleParams",
+	SimpleParamProps
+> {
+	// ????? wtf ts
+	m_strSettingsField: "simpleParams" = "simpleParams";
+
+	async GetInitialValue() {
+		const { mapParams } = this.props;
+		const { simpleParams } = await GetSettings();
+
+		return Object.entries(mapParams).every(([param, paramValue]) => {
+			const lhs = simpleParams[param];
+			const rhs = paramValue;
+
+			return Array.isArray(paramValue)
+				? AreTwoArraysEqual(lhs, rhs as number[])
+				: Number(lhs) === Number(rhs);
+		});
+	}
+
+	async OnChange(value: boolean) {
+		const { mapParams } = this.props;
+		for (const [param, paramValue] of Object.entries(mapParams)) {
+			await this.ToggleSetting(param as WindowParam_t, paramValue);
+		}
+		this.setState({ value });
+	}
+}
+
 function VerifiedSettings() {
 	return (
-		<PanelSection title={Localize("#ChangeWindowParams_Tab_Verified")}>
+		<LocalizedPanelSection strToken="#ChangeWindowParams_Tab_Verified">
 			<SimpleParam
 				mapParams={{ browserType: EBrowserType.DirectHWND.toString() }}
 				strName="SystemTitlebar"
+			/>
+			<BooleanSetting fieldProps={{ indentLevel: 1 }} strName="ExcludeMenus" />
+			<BooleanSetting
+				fieldProps={{ indentLevel: 1 }}
+				strName="ExcludeNotifications"
+			/>
+			<BooleanSetting
+				fieldProps={{ indentLevel: 1 }}
+				strName="ExcludeOverlay"
 			/>
 			<SimpleParam
 				mapParams={{
@@ -471,7 +532,38 @@ function VerifiedSettings() {
 				mapParams={{ minheight: "0", minwidth: "0" }}
 				strName="NoSizeLimit"
 			/>
-		</PanelSection>
+		</LocalizedPanelSection>
+	);
+}
+
+function Actions() {
+	return (
+		<LocalizedPanelSection strToken="#ChangeWindowParams_ButtonsHeader">
+			<LocalizedButton
+				onClick={() => {
+					const wnd = window.open("about:blank", "previewwindow");
+					const elButton = wnd.document.createElement("button");
+					elButton.textContent = Localize("#Generic_Close");
+					elButton.addEventListener("click", () => {
+						wnd.close();
+					});
+					wnd.document.body.appendChild(elButton);
+				}}
+				strToken="#ChangeWindowParams_Buttons_PreviewWindow"
+			/>
+			<LocalizedButton
+				onClick={() => {
+					ResetSettings();
+				}}
+				strToken="#ChangeWindowParams_Buttons_ResetSettings"
+			/>
+			<LocalizedButton
+				onClick={() => {
+					SteamClient.Browser.RestartJSContext();
+				}}
+				strToken="#ChangeWindowParams_Buttons_RestartSteam"
+			/>
+		</LocalizedPanelSection>
 	);
 }
 
@@ -484,12 +576,12 @@ export function SettingsPanel() {
 		// TODO: retain flags option
 		(param) => (
 			<PanelSectionRow>
-				<div>
+				<DialogControlsSection>
 					<SettingsDialogSubHeader>{param}</SettingsDialogSubHeader>
 					{EnumToObject(mapParamFlags[param]).map(([member, flag]) => (
 						<FlagParam name={param} member={member} flag={flag} />
 					))}
-				</div>
+				</DialogControlsSection>
 			</PanelSectionRow>
 		),
 		(param) => <TextParam bNumeric name={param} />,
@@ -498,18 +590,10 @@ export function SettingsPanel() {
 
 	return (
 		<>
-			<PanelSection>
-				<LocalizedButton
-					onClick={() => {
-						ResetSettings();
-						SteamClient.Browser.RestartJSContext();
-					}}
-					strToken="#ChangeWindowParams_Buttons_ResetSettings"
-				/>
-			</PanelSection>
+			<Actions />
 			<VerifiedSettings />
 			{!bAdvancedMode ? (
-				<PanelSection>
+				<LocalizedPanelSection strToken="#ChangeWindowParams_AdvancedMode_Title">
 					<LocalizedButton
 						onClick={() => {
 							ShowWarningDialog(
@@ -520,12 +604,12 @@ export function SettingsPanel() {
 						}}
 						strToken="#ChangeWindowParams_Buttons_AdvancedMode"
 					/>
-				</PanelSection>
+				</LocalizedPanelSection>
 			) : (
 				k_vecParamTypes.map((type, i) => (
-					<PanelSection title={Localize(`#ChangeWindowParams_Tab_${type}`)}>
+					<LocalizedPanelSection strToken={`#ChangeWindowParams_Tab_${type}`}>
 						{vecWindowParams[i].map((param) => vecContents[i](param))}
-					</PanelSection>
+					</LocalizedPanelSection>
 				))
 			)}
 		</>

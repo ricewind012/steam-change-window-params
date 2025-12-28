@@ -2,7 +2,12 @@ import { definePlugin, IconsModule } from "@steambrew/client";
 
 import { PLUGIN_PATH } from "./consts";
 import { CLog } from "./logger";
-import { GetParams, ParseParam, ParseParamForHTMLAttribute } from "./settings";
+import {
+	GetParams,
+	GetSettings,
+	ParseParam,
+	ParseParamForHTMLAttribute,
+} from "./settings";
 import { SettingsPanel } from "./settingspanel";
 import type {
 	LocalizationManager as CLocalizationManager,
@@ -50,15 +55,31 @@ async function OnPopupCreated(pPopup: SteamPopup) {
 
 export default definePlugin(async () => {
 	const params = await GetParams();
+	const { options } = await GetSettings();
+
 	// TODO injects too slow lol lmao
 	const pOriginalOpen = window.open;
 	window.open = (url, target, features) => {
 		const pNewURL = new URL(url);
+
+		const bOverlay = target.startsWith("desktopoverlay_");
+		const bOverlayAsParent =
+			pNewURL.searchParams.has("pid") &&
+			pNewURL.searchParams.get("pid") !== "0";
+		const bDontApply = [
+			options.ExcludeMenus && target.startsWith("contextmenu_"),
+			options.ExcludeNotifications && target.startsWith("notificationtoasts_"),
+			options.ExcludeOverlay && (bOverlay || bOverlayAsParent),
+		].find(Boolean);
+		if (bDontApply) {
+			g_pLogger.Log("window.open: ignoring %o by preference", target);
+			return pOriginalOpen(url, target, features);
+		}
+
 		for (const [k, v] of params) {
 			const value = ParseParam(k, v);
 			pNewURL.searchParams.set(k, value);
 		}
-		g_pLogger.Log("window.open %o", [pNewURL.toString(), target, features]);
 
 		return pOriginalOpen(pNewURL, target, features);
 	};
@@ -68,7 +89,7 @@ export default definePlugin(async () => {
 
 	return {
 		content: <SettingsPanel />,
-		icon: <IconsModule.Settings />,
+		icon: <IconsModule.SingleWindowToggle />,
 		title: "test",
 	};
 });
