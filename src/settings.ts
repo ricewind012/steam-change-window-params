@@ -17,6 +17,7 @@ export type WindowParamValue_t = number[] | string;
 
 export interface Settings {
 	options: {
+		ApplyMainWindowWorkaround?: boolean;
 		ExcludeMenus?: boolean;
 		ExcludeNotifications?: boolean;
 		ExcludeOverlay?: boolean;

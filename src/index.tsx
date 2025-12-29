@@ -1,4 +1,10 @@
-import { definePlugin, IconsModule } from "@steambrew/client";
+import {
+	definePlugin,
+	EUIMode,
+	IconsModule,
+	pluginSelf,
+	sleep,
+} from "@steambrew/client";
 
 import { PLUGIN_PATH } from "./consts";
 import { CLog } from "./logger";
@@ -19,6 +25,8 @@ declare global {
 	const g_PopupManager: CPopupManager;
 	const LocalizationManager: CLocalizationManager;
 }
+
+const MAIN_WINDOW_NAME = "SP Desktop_uid0";
 
 const g_pLogger = new CLog("index");
 
@@ -43,6 +51,46 @@ async function InitLocalization() {
 	LocalizationManager.AddTokens(tokens);
 }
 
+/**
+ * Like `CPopupManager.AddPopupCreatedCallback`, but account for existing popups
+ * and is specifically for one popup.
+ */
+function AddPopupCreatedCallback(
+	popupName: string,
+	callback: (popup: SteamPopup) => void,
+) {
+	const popup = g_PopupManager.GetExistingPopup(popupName);
+	if (popup) {
+		callback(popup);
+		return;
+	}
+
+	return g_PopupManager.AddPopupCreatedCallback((popup) => {
+		if (popup.m_strName !== popupName) {
+			return;
+		}
+
+		callback(popup);
+	});
+}
+
+async function OnMainWindowCreated() {
+	if (pluginSelf.bMainWindowWorkaroundApplied) {
+		return;
+	}
+
+	// lmfaooooooooooo
+	SteamClient.UI.SetUIMode(EUIMode.GamePad);
+	const store = globalThis.SteamUIStore.WindowStore;
+	while (
+		!store.GamepadUIMainWindowInstance?.BIsGamepadApplicationUIInitialized()
+	) {
+		await sleep(100);
+	}
+	SteamClient.UI.SetUIMode(EUIMode.Desktop);
+	pluginSelf.bMainWindowWorkaroundApplied = true;
+}
+
 async function OnPopupCreated(pPopup: SteamPopup) {
 	const pPopupDoc = pPopup.m_popup.document;
 	const params = await GetParams();
@@ -57,7 +105,9 @@ export default definePlugin(async () => {
 	const params = await GetParams();
 	const { options } = await GetSettings();
 
-	// TODO injects too slow lol lmao
+	let bStartedBeforeMainWindow =
+		!g_PopupManager.GetExistingPopup(MAIN_WINDOW_NAME);
+
 	const pOriginalOpen = window.open;
 	window.open = (url, target, features) => {
 		const bIsBPMWindow =
@@ -65,7 +115,7 @@ export default definePlugin(async () => {
 			target.startsWith("MainMenu_") ||
 			target.startsWith("QuickAccess_");
 		if (bIsBPMWindow) {
-			g_pLogger.Log("window.open: ignoring %o, is a BPM Window", target);
+			g_pLogger.Log("window.open: ignoring %o, is a BPM window", target);
 			return pOriginalOpen(url, target, features);
 		}
 
@@ -90,8 +140,22 @@ export default definePlugin(async () => {
 			pNewURL.searchParams.set(k, value);
 		}
 
+		// Needed for ignoring main window workaround, if started early enough
+		if (target === MAIN_WINDOW_NAME) {
+			bStartedBeforeMainWindow = true;
+		}
+
 		return pOriginalOpen(pNewURL, target, features);
 	};
+
+	const eInitialUIMode = await SteamClient.UI.GetUIMode();
+	if (
+		eInitialUIMode === EUIMode.Desktop &&
+		!bStartedBeforeMainWindow &&
+		options.ApplyMainWindowWorkaround
+	) {
+		AddPopupCreatedCallback(MAIN_WINDOW_NAME, OnMainWindowCreated);
+	}
 
 	g_PopupManager.AddPopupCreatedCallback(OnPopupCreated);
 	await InitLocalization();

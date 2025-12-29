@@ -77,6 +77,8 @@
 	"ChangeWindowParams_Tab_Strings": "Strings",
 	"ChangeWindowParams_Tab_Verified": "Verified Settings",
 
+	"ChangeWindowParams_Verified_ApplyMainWindowWorkaround": "Apply main window workaround",
+	"ChangeWindowParams_Verified_ApplyMainWindowWorkaround_Description": "The plugin doesn't start early enough sometimes to modify the main window. This fixes it... by changing to Big Picture Mode and back (lol).",
 	"ChangeWindowParams_Verified_ExcludeMenus": "Exclude menus",
 	"ChangeWindowParams_Verified_ExcludeNotifications": "Exclude notifications",
 	"ChangeWindowParams_Verified_ExcludeOverlay": "Exclude overlay (and its windows)",

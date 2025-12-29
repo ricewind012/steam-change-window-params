@@ -504,6 +504,15 @@ class SimpleParam extends BooleanSettingFieldBase<
 function VerifiedSettings() {
 	return (
 		<LocalizedPanelSection strToken="#ChangeWindowParams_Tab_Verified">
+			<BooleanSetting
+				fieldProps={{
+					bottomSeparator: "thick",
+					description: Localize(
+						"#ChangeWindowParams_Verified_ApplyMainWindowWorkaround_Description",
+					),
+				}}
+				strName="ApplyMainWindowWorkaround"
+			/>
 			<SimpleParam
 				mapParams={{ browserType: EBrowserType.DirectHWND.toString() }}
 				strName="SystemTitlebar"
