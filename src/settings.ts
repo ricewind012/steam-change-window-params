@@ -1,4 +1,4 @@
-import { findModuleByExport, pluginSelf } from "@steambrew/client";
+import { findModuleByExport } from "@steambrew/client";
 
 import plugin from "../plugin.json";
 import {
@@ -48,19 +48,17 @@ export const mapParamFlags: WindowParamMap_t<object> = {
  * Gets params from settings, prioritizing `simpleParams` over `params`, since
  * they're not compatible.
  */
-export async function GetParams() {
-	const { params, simpleParams } = await GetSettings();
+export function GetParams() {
+	const { params, simpleParams } = GetSettings();
 	const bUseSimpleParams = Object.keys(simpleParams).length !== 0;
 	const pResult = bUseSimpleParams ? simpleParams : params;
 
 	return Object.entries(pResult) as GetParamsResult_t;
 }
 
-export async function GetSettings(): Promise<Settings> {
+export function GetSettings(): Settings {
 	const strDefaultJSON = JSON.stringify(k_pDefaultJSON);
-	const pSettings = await SteamClient.MachineStorage.GetJSON(
-		k_strSettingsKey,
-	).catch(() => strDefaultJSON);
+	const pSettings = localStorage.getItem(k_strSettingsKey) || strDefaultJSON;
 
 	return Object.assign(k_pDefaultJSON, JSON.parse(pSettings as string));
 }
@@ -95,32 +93,25 @@ export function ParseParamForHTMLAttribute(
 }
 
 export function ResetSettings() {
-	SteamClient.MachineStorage.DeleteKey(k_strSettingsKey);
+	localStorage.removeItem(k_strSettingsKey);
 }
 
-export async function SetSettingsKey<
+export function SetSettingsKey<
 	F extends keyof Settings,
 	K extends keyof Settings[F],
 >(field: F, key: K, value: Settings[F][K]) {
-	const pSettings = await GetSettings();
+	const pSettings = GetSettings();
 	pSettings[field][key] = value;
 
-	SteamClient.MachineStorage.SetObject(k_strSettingsKey, pSettings);
+	localStorage.setItem(k_strSettingsKey, JSON.stringify(pSettings));
 }
 
-export async function RemoveSettingsKey<F extends keyof Settings>(
+export function RemoveSettingsKey<F extends keyof Settings>(
 	field: F,
 	key: keyof Settings[F],
 ) {
-	const pSettings = await GetSettings();
+	const pSettings = GetSettings();
 	delete pSettings[field][key];
 
-	SteamClient.MachineStorage.SetObject(k_strSettingsKey, pSettings);
+	localStorage.setItem(k_strSettingsKey, JSON.stringify(pSettings));
 }
-
-pluginSelf.GetParams = GetParams;
-pluginSelf.GetSettings = GetSettings;
-pluginSelf.ParseParam = ParseParam;
-pluginSelf.ResetSettings = ResetSettings;
-pluginSelf.SetSettingsKey = SetSettingsKey;
-pluginSelf.RemoveSettingsKey = RemoveSettingsKey;

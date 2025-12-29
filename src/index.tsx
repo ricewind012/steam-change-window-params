@@ -1,10 +1,4 @@
-import {
-	definePlugin,
-	EUIMode,
-	IconsModule,
-	pluginSelf,
-	sleep,
-} from "@steambrew/client";
+import { definePlugin, EUIMode, IconsModule, sleep } from "@steambrew/client";
 
 import { PLUGIN_PATH } from "./consts";
 import { CLog } from "./logger";
@@ -28,6 +22,7 @@ declare global {
 
 const MAIN_WINDOW_NAME = "SP Desktop_uid0";
 
+let g_bMainWindowWorkaroundApplied = false;
 const g_pLogger = new CLog("index");
 
 /**
@@ -75,7 +70,7 @@ function AddPopupCreatedCallback(
 }
 
 async function OnMainWindowCreated() {
-	if (pluginSelf.bMainWindowWorkaroundApplied) {
+	if (g_bMainWindowWorkaroundApplied) {
 		return;
 	}
 
@@ -88,12 +83,12 @@ async function OnMainWindowCreated() {
 		await sleep(100);
 	}
 	SteamClient.UI.SetUIMode(EUIMode.Desktop);
-	pluginSelf.bMainWindowWorkaroundApplied = true;
+	g_bMainWindowWorkaroundApplied = true;
 }
 
 async function OnPopupCreated(pPopup: SteamPopup) {
 	const pPopupDoc = pPopup.m_popup.document;
-	const params = await GetParams();
+	const params = GetParams();
 	for (const [k, v] of params) {
 		const elRoot = pPopupDoc.documentElement;
 		const value = ParseParamForHTMLAttribute(k, v);
@@ -102,8 +97,8 @@ async function OnPopupCreated(pPopup: SteamPopup) {
 }
 
 export default definePlugin(async () => {
-	const params = await GetParams();
-	const { options } = await GetSettings();
+	const params = GetParams();
+	const { options } = GetSettings();
 
 	let bStartedBeforeMainWindow =
 		!g_PopupManager.GetExistingPopup(MAIN_WINDOW_NAME);

@@ -162,8 +162,8 @@ class Param<S, P = ParamProps> extends Component<
 > {
 	public m_pSettings: Settings;
 
-	async componentDidMount() {
-		this.m_pSettings = await GetSettings();
+	componentDidMount() {
+		this.m_pSettings = GetSettings();
 		const value = this.ConvertParamToState();
 		this.setState({ value });
 	}
@@ -405,24 +405,21 @@ abstract class BooleanSettingFieldBase<
 	/**
 	 * @returns the initial value to set on render.
 	 */
-	abstract GetInitialValue(): Promise<boolean>;
+	abstract GetInitialValue(): boolean;
 
-	abstract OnChange(value: boolean): Promise<void>;
+	abstract OnChange(value: boolean): void;
 
-	async componentDidMount() {
-		const value = await this.GetInitialValue();
+	componentDidMount() {
+		const value = this.GetInitialValue();
 		this.setState({ value });
 	}
 
-	async ToggleSetting<K extends keyof Settings[F]>(
-		key: K,
-		value: Settings[F][K],
-	) {
+	ToggleSetting<K extends keyof Settings[F]>(key: K, value: Settings[F][K]) {
 		if (value) {
-			await SetSettingsKey(this.m_strSettingsField, key, value);
+			SetSettingsKey(this.m_strSettingsField, key, value);
 			g_pLogger.Log("Setting param %o to value %o", key, value);
 		} else {
-			await RemoveSettingsKey(this.m_strSettingsField, key);
+			RemoveSettingsKey(this.m_strSettingsField, key);
 			g_pLogger.Log("Removing %o from %o", key, this.m_strSettingsField);
 		}
 	}
@@ -430,6 +427,7 @@ abstract class BooleanSettingFieldBase<
 	render() {
 		const { fieldProps, strName } = this.props;
 		// for whatever reason ts thinks it may be a symbol... wtf is this shit?
+		// actually not if I make it "string" but it will if it's keyof Settings
 		const label = Localize(`#ChangeWindowParams_Verified_${strName as string}`);
 
 		return (
@@ -447,15 +445,15 @@ class BooleanSetting extends BooleanSettingFieldBase<"options"> {
 	// ????? wtf ts
 	m_strSettingsField: "options" = "options";
 
-	async GetInitialValue() {
+	GetInitialValue() {
 		const { strName } = this.props;
-		const { options } = await GetSettings();
+		const { options } = GetSettings();
 		return options[strName];
 	}
 
-	async OnChange(value: boolean) {
+	OnChange(value: boolean) {
 		const { strName } = this.props;
-		await this.ToggleSetting(strName as keyof Settings["options"], value);
+		this.ToggleSetting(strName as keyof Settings["options"], value);
 		this.setState({ value });
 	}
 }
@@ -478,9 +476,9 @@ class SimpleParam extends BooleanSettingFieldBase<
 	// ????? wtf ts
 	m_strSettingsField: "simpleParams" = "simpleParams";
 
-	async GetInitialValue() {
+	GetInitialValue() {
 		const { mapParams } = this.props;
-		const { simpleParams } = await GetSettings();
+		const { simpleParams } = GetSettings();
 
 		return Object.entries(mapParams).every(([param, paramValue]) => {
 			const lhs = simpleParams[param];
@@ -492,10 +490,10 @@ class SimpleParam extends BooleanSettingFieldBase<
 		});
 	}
 
-	async OnChange(value: boolean) {
+	OnChange(value: boolean) {
 		const { mapParams } = this.props;
 		for (const [param, paramValue] of Object.entries(mapParams)) {
-			await this.ToggleSetting(param as WindowParam_t, paramValue);
+			this.ToggleSetting(param as WindowParam_t, paramValue);
 		}
 		this.setState({ value });
 	}
