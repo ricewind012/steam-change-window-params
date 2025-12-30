@@ -33,6 +33,8 @@ const k_pDefaultJSON: Settings = {
 	simpleParams: {},
 };
 
+let g_pSettings: Settings = null;
+
 export const mapParamEnums: WindowParamMap_t<object> = {
 	browserType: EBrowserType,
 	vrOverlayKey: Object.values(
@@ -56,11 +58,12 @@ export function GetParams() {
 	return Object.entries(pResult) as GetParamsResult_t;
 }
 
-export function GetSettings(): Settings {
-	const strDefaultJSON = JSON.stringify(k_pDefaultJSON);
-	const pSettings = localStorage.getItem(k_strSettingsKey) || strDefaultJSON;
+export function GetSettings() {
+	if (!g_pSettings) {
+		SaveToGlobal();
+	}
 
-	return Object.assign(k_pDefaultJSON, JSON.parse(pSettings as string));
+	return Object.assign(k_pDefaultJSON, g_pSettings);
 }
 
 export function ParseParam(k: WindowParam_t, v: WindowParamValue_t) {
@@ -96,12 +99,21 @@ export function ResetSettings() {
 	localStorage.removeItem(k_strSettingsKey);
 }
 
+/**
+ * Cache settings to a global so I don't read localStorage all the time.
+ */
+function SaveToGlobal() {
+	g_pSettings =
+		JSON.parse(localStorage.getItem(k_strSettingsKey)) || k_pDefaultJSON;
+}
+
 export function SetSettingsKey<
 	F extends keyof Settings,
 	K extends keyof Settings[F],
 >(field: F, key: K, value: Settings[F][K]) {
 	const pSettings = GetSettings();
 	pSettings[field][key] = value;
+	g_pSettings = pSettings;
 
 	localStorage.setItem(k_strSettingsKey, JSON.stringify(pSettings));
 }
@@ -112,6 +124,7 @@ export function RemoveSettingsKey<F extends keyof Settings>(
 ) {
 	const pSettings = GetSettings();
 	delete pSettings[field][key];
+	g_pSettings = pSettings;
 
 	localStorage.setItem(k_strSettingsKey, JSON.stringify(pSettings));
 }
