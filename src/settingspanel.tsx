@@ -288,6 +288,7 @@ class FlagParam extends Param<boolean, FlagParamProps> {
 				"#ChangeWindowParams_Dialog_WarningDescription_Nav",
 				"--remote-debugging-port",
 				"steamwebhelper",
+				"8080",
 				"http://localhost:{port} > SharedJSContext",
 				`localStorage.removeItem("${SETTINGS_KEY}"); SteamClient.Browser.RestartJSContext();`,
 			);

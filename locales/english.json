@@ -10,7 +10,7 @@
 
 	"ChangeWindowParams_Dialog_SettingsTitle": "Plugin Settings",
 	"ChangeWindowParams_Dialog_WarningDescription": "The next time you open a window or restart Steam, [b]NO WINDOWS[/b] will appear (or something else may happen) and you will have to revert it through other means:",
-	"ChangeWindowParams_Dialog_WarningDescription_Nav": "[*] Find the Millennium port (%1$s in %2$s's command line) [*] Go to %3$s > Console [*] Type the following: [code]%4$s[/code]",
+	"ChangeWindowParams_Dialog_WarningDescription_Nav": "[*] Find the Millennium port (look for %1$s in %2$s's command line, the port is %3$s if started in dev mode) [*] Go to %4$s > Console [*] Type the following: [code]%5$s[/code]",
 	"ChangeWindowParams_Dialog_WarningTitle": "Warning",
 
 	"ChangeWindowParams_EnumDesc_browserType_ChildHWNDNative": "",
