@@ -15,10 +15,5 @@
 	},
 	"files": {
 		"includes": ["**", "!package.json", "!plugin.json"]
-	},
-	"linter": {
-		"rules": {
-			"a11y": "off"
-		}
 	}
 }

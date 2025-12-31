@@ -1,3 +1,0 @@
-[submodule "src/sharedjscontextglobals"]
-	path = src/sharedjscontextglobals
-	url = https://github.com/ricewind012/steam-sharedjscontext-types

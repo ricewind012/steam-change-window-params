@@ -2,15 +2,10 @@
 
 Modify how Steam displays windows.
 
-Currently may not always work on the main window due to the plugin not starting early enough.
+![Preview](./assets/preview.png)
 
 ## Settings behavior
 
-If a field has no description, it's unknown what it does.
+After changing settings, you must click the "Restart Steam UI" button if you want the changes to apply immediately.
 
-Dropdowns are currently buggy - if you choose something, the value will become empty but it will actually be set.
-
-## TODO
-
-- Window exceptions
-- Preview
+In advanced mode, if a param has no description, it's unknown what it does. Feel free to document (and show it in the PR) its behavior [here](https://github.com/ricewind012/steam-change-window-params/blob/master/locales/english.json).

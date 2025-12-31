@@ -1,12 +1,8 @@
 import { findModuleExport } from "@steambrew/client";
-import type { FC, ReactNode } from "react";
+import type { FC } from "react";
 
 interface BBCodeParserProps {
-	bShowShortSpeakerInfo?: boolean;
-	event?: any;
-	languageOverride?: any;
-	showErrorInfo?: boolean;
-	text?: ReactNode;
+	text?: string;
 }
 
 export const BBCodeParser: FC<BBCodeParserProps> = findModuleExport(

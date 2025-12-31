@@ -9,16 +9,17 @@ import {
 	ParseParamForHTMLAttribute,
 } from "./settings";
 import { SettingsPanel } from "./settingspanel";
-import type {
-	LocalizationManager as CLocalizationManager,
-	CPopupManager,
-	SteamPopup,
-} from "./sharedjscontextglobals/normal";
 
 declare global {
-	const g_PopupManager: CPopupManager;
-	const LocalizationManager: CLocalizationManager;
+	// biome-ignore lint/suspicious/noExplicitAny: XD
+	const g_PopupManager: any;
+	// biome-ignore lint/suspicious/noExplicitAny: XD
+	const LocalizationManager: any;
+	// biome-ignore lint/suspicious/noExplicitAny: XD
+	const SteamUIStore: any;
 }
+
+type SteamPopup = { window: Window };
 
 const MAIN_WINDOW_NAME = "SP Desktop_uid0";
 
@@ -76,7 +77,8 @@ async function OnMainWindowCreated() {
 
 	// lmfaooooooooooo
 	SteamClient.UI.SetUIMode(EUIMode.GamePad);
-	const store = globalThis.SteamUIStore.WindowStore;
+	const store = SteamUIStore.WindowStore;
+	// wait for init, as navigator may be undefined upon switching to desktop
 	while (
 		!store.GamepadUIMainWindowInstance?.BIsGamepadApplicationUIInitialized()
 	) {
@@ -87,10 +89,9 @@ async function OnMainWindowCreated() {
 }
 
 async function OnPopupCreated(pPopup: SteamPopup) {
-	const pPopupDoc = pPopup.m_popup.document;
+	const elRoot = pPopup.window.document.documentElement;
 	const params = GetParams();
 	for (const [k, v] of params) {
-		const elRoot = pPopupDoc.documentElement;
 		const value = ParseParamForHTMLAttribute(k, v);
 		elRoot.setAttribute(k, value);
 	}
@@ -132,7 +133,7 @@ export default definePlugin(async () => {
 
 		for (const [k, v] of params) {
 			const value = ParseParam(k, v);
-			pNewURL.searchParams.set(k, value);
+			pNewURL.searchParams.set(k, value.toString());
 		}
 
 		// Needed for ignoring main window workaround, if started early enough
@@ -158,6 +159,6 @@ export default definePlugin(async () => {
 	return {
 		content: <SettingsPanel />,
 		icon: <IconsModule.SingleWindowToggle />,
-		title: "test",
+		title: "Change Window Params",
 	};
 });

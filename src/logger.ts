@@ -1,51 +1,48 @@
-import { LOG_STYLE, PLUGIN_NAME } from "./consts";
+/** biome-ignore-all lint/suspicious/noExplicitAny: console.log() args */
+
+import { PLUGIN_NAME } from "./consts";
+
+const LOG_STYLE = "padding: 0 1ch";
 
 export class CLog {
-	public m_strScope: string;
+	private m_strScope: string;
 
 	constructor(strScope: string) {
 		this.m_strScope = strScope;
 	}
 
-	// biome-ignore lint/suspicious/noExplicitAny: console.log() args
-	#Print(strMethod: string, strFormat: string, ...args: any[]) {
+	private Print(strMethod: string, strFormat: string, ...args: any[]) {
 		console[strMethod](
 			`%c${PLUGIN_NAME}%c${this.m_strScope}%c ${strFormat}`,
-			`${LOG_STYLE}; background-color: black; color: white`,
-			`${LOG_STYLE}; background-color: #404040; color: #eee`,
+			`${LOG_STYLE}; background-color: #fff; color: #000`,
+			`${LOG_STYLE}; background-color: #000; color: #fff`,
 			"",
 			...args,
 		);
 	}
 
-	// biome-ignore lint/suspicious/noExplicitAny: console.log() args
 	Log(strFormat: string, ...args: any[]) {
-		this.#Print("log", strFormat, ...args);
+		this.Print("log", strFormat, ...args);
 	}
 
-	// biome-ignore lint/suspicious/noExplicitAny: console.log() args
 	Warn(strFormat: string, ...args: any[]) {
-		this.#Print("warn", strFormat, ...args);
+		this.Print("warn", strFormat, ...args);
 	}
 
-	// biome-ignore lint/suspicious/noExplicitAny: console.log() args
 	Error(strFormat: string, ...args: any[]) {
-		this.#Print("error", strFormat, ...args);
+		this.Print("error", strFormat, ...args);
 	}
 
-	// biome-ignore lint/suspicious/noExplicitAny: console.log() args
-	Assert(bAssertion: boolean, strFormat: string, ...args: any[]) {
-		if (bAssertion) {
-			return;
+	Assert(bCondition: boolean, strFormat: string, ...args: any[]) {
+		if (!bCondition) {
+			this.Error(`Assertion failed: ${strFormat}`, ...args);
 		}
-
-		this.Error(`Assertion failed: ${strFormat}`, ...args);
 	}
 }
 
 export class CLogTime extends CLog {
-	m_strLabel: string;
-	m_unDate: number;
+	private m_strLabel: string;
+	private m_unStart: number;
 
 	constructor(strScope: string, strLabel: string) {
 		super(strScope);
@@ -53,15 +50,15 @@ export class CLogTime extends CLog {
 	}
 
 	TimeStart() {
-		this.m_unDate = Date.now();
+		this.m_unStart = Date.now();
 	}
 
 	TimeEnd() {
-		const unCurrentDate = Date.now();
+		const unEnd = Date.now();
 		this.Log(
 			"%s: took %o seconds",
 			this.m_strLabel,
-			(unCurrentDate - this.m_unDate) / 1000,
+			(unEnd - this.m_unStart) / 1000,
 		);
 	}
 }

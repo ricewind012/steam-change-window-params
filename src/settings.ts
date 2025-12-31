@@ -4,16 +4,17 @@ import plugin from "../plugin.json";
 import {
 	EBrowserType,
 	EPopupCreationFlags,
-} from "./sharedjscontextglobals/normal";
-import type { WindowParam_t, WindowParamMap_t } from "./types";
+	type WindowParam_t,
+	type WindowParamMap_t,
+} from "./types";
 
 export type GetParamsResult_t = [WindowParam_t, WindowParamValue_t][];
 
 /**
  * `number[]` - flags,
- * `string` - everything else.
+ * `string | boolean` - everything else.
  */
-export type WindowParamValue_t = number[] | string;
+export type WindowParamValue_t = number[] | string | boolean;
 
 export interface Settings {
 	options: {
@@ -26,8 +27,8 @@ export interface Settings {
 	simpleParams: WindowParamMap_t<WindowParamValue_t>;
 }
 
-const k_strSettingsKey = `${plugin.name}_Settings`;
-const k_pDefaultJSON: Settings = {
+export const SETTINGS_KEY = `${plugin.name}-settings`;
+const DEFAULT_SETTINGS: Settings = {
 	options: {},
 	params: {},
 	simpleParams: {},
@@ -63,7 +64,7 @@ export function GetSettings() {
 		SaveToGlobal();
 	}
 
-	return Object.assign(k_pDefaultJSON, g_pSettings);
+	return Object.assign(DEFAULT_SETTINGS, g_pSettings);
 }
 
 export function ParseParam(k: WindowParam_t, v: WindowParamValue_t) {
@@ -96,7 +97,7 @@ export function ParseParamForHTMLAttribute(
 }
 
 export function ResetSettings() {
-	localStorage.removeItem(k_strSettingsKey);
+	localStorage.removeItem(SETTINGS_KEY);
 }
 
 /**
@@ -104,7 +105,7 @@ export function ResetSettings() {
  */
 function SaveToGlobal() {
 	g_pSettings =
-		JSON.parse(localStorage.getItem(k_strSettingsKey)) || k_pDefaultJSON;
+		JSON.parse(localStorage.getItem(SETTINGS_KEY)) || DEFAULT_SETTINGS;
 }
 
 export function SetSettingsKey<
@@ -115,7 +116,7 @@ export function SetSettingsKey<
 	pSettings[field][key] = value;
 	g_pSettings = pSettings;
 
-	localStorage.setItem(k_strSettingsKey, JSON.stringify(pSettings));
+	localStorage.setItem(SETTINGS_KEY, JSON.stringify(pSettings));
 }
 
 export function RemoveSettingsKey<F extends keyof Settings>(
@@ -126,5 +127,5 @@ export function RemoveSettingsKey<F extends keyof Settings>(
 	delete pSettings[field][key];
 	g_pSettings = pSettings;
 
-	localStorage.setItem(k_strSettingsKey, JSON.stringify(pSettings));
+	localStorage.setItem(SETTINGS_KEY, JSON.stringify(pSettings));
 }

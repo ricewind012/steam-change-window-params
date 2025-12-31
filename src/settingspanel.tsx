@@ -27,6 +27,7 @@ import {
 	mapParamFlags,
 	RemoveSettingsKey,
 	ResetSettings,
+	SETTINGS_KEY,
 	SetSettingsKey,
 	type Settings,
 	type WindowParamValue_t,
@@ -34,8 +35,10 @@ import {
 import {
 	EBrowserType,
 	EPopupCreationFlags,
-} from "./sharedjscontextglobals/normal";
-import type { WindowParam_t, WindowParamMap_t } from "./types";
+	type WindowParam_t,
+	type WindowParamMap_t,
+} from "./types";
+import { AreTwoArraysEqual, EnumToDropdown, EnumToObject } from "./utils";
 
 // biome-ignore lint/correctness/noUnusedVariables: Needed for demonstration
 enum EParamType {
@@ -46,7 +49,6 @@ enum EParamType {
 	String,
 }
 
-type EnumObject_t = [string, number][];
 type PageMapFn_t = (param: WindowParam_t) => ReactNode;
 
 const k_vecParamTypes = ["Booleans", "Enums", "Flags", "Numbers", "Strings"];
@@ -89,45 +91,13 @@ const g_pLogger = new CLog("settingspanel");
 // For now createflags is the only bitflag param, so don't bother
 const g_setFlags = new Set<number>();
 
-// biome-ignore lint/suspicious/noExplicitAny: intentional
-const EnumToObject = (e: any) =>
-	Object.entries(e).filter((e) => typeof e[1] === "number") as EnumObject_t;
-
-// biome-ignore lint/suspicious/noExplicitAny: intentional
-const EnumToDropdown = (e: any) =>
-	EnumToObject(e).map((e) => ({
-		data: e[1],
-		label: e[0],
-	})) as SingleDropdownOption[];
-
 const SettingsDialogSubHeader = ({ children }: PropsWithChildren) => (
 	<div className="SettingsDialogSubHeader">{children}</div>
 );
 
-// biome-ignore lint/suspicious/noExplicitAny: intentional
-function AreTwoArraysEqual(lhs: any[], rhs: any[]) {
-	if (!lhs || !rhs) {
-		return false;
-	}
-	if (!Array.isArray(lhs) || !Array.isArray(rhs)) {
-		return false;
-	}
-	if (lhs.length !== rhs.length) {
-		return false;
-	}
-
-	for (let i = 0; i < lhs.length; i++) {
-		if (lhs[i] !== rhs[i]) {
-			return false;
-		}
-	}
-
-	return true;
-}
-
 /**
- * @param strDescription Loc token
  * @param strTitle Loc token
+ * @param strDescription Loc token
  * @param onOK
  */
 function ShowWarningDialog(
@@ -135,14 +105,12 @@ function ShowWarningDialog(
 	strDescription: string,
 	onOK: () => void,
 ) {
-	const wnd = g_PopupManager.GetExistingPopup("SP Desktop_uid0").m_popup;
+	const wnd = SteamUIStore.WindowStore.MainWindowInstance.BrowserWindow;
 	showModal(
-		<ConfirmModal
-			bDestructiveWarning
-			strTitle={Localize(strTitle)}
-			strDescription={<BBCodeParser text={Localize(strDescription)} />}
-			onOK={onOK}
-		/>,
+		<ConfirmModal bDestructiveWarning onOK={onOK} strTitle={Localize(strTitle)}>
+			<style>{".DialogBodyText code { user-select: all; }"}</style>
+			<BBCodeParser text={Localize(strDescription)} />
+		</ConfirmModal>,
 		wnd,
 		{ bNeverPopOut: true },
 	);
@@ -210,15 +178,11 @@ class BoolParam extends Param<boolean> {
 	ConvertParamToState() {
 		const param = this.m_pSettings.params[this.props.name];
 
-		return param === "true";
+		return param === true;
 	}
 
-	/**
-	 * VDF does not have them and turns bools into 1/0.
-	 */
 	ChangeParam(value: boolean) {
-		// fuck off, retard
-		super.ChangeParam(value.toString() as unknown as boolean);
+		super.ChangeParam(value);
 	}
 
 	render() {
@@ -262,7 +226,6 @@ class EnumParam extends Param<SingleDropdownOption> {
 		const actualValue = Array.isArray(value)
 			? value.map((e) => ({ data: e, label: e }))
 			: EnumToDropdown(value);
-		// TODO desc in dropdown? idk
 
 		return (
 			<ParamField label={name} description={token}>
@@ -318,9 +281,20 @@ class FlagParam extends Param<boolean, FlagParamProps> {
 
 		const bShowDialog = value && k_pWarners[name]?.some((e) => member === e);
 		if (bShowDialog) {
+			const strDescription = Localize(
+				"#ChangeWindowParams_Dialog_WarningDescription",
+			);
+			const strDescriptionNav = Localize(
+				"#ChangeWindowParams_Dialog_WarningDescription_Nav",
+				"--remote-debugging-port",
+				"steamwebhelper",
+				"http://localhost:{port} > SharedJSContext",
+				`localStorage.removeItem("${SETTINGS_KEY}"); SteamClient.Browser.RestartJSContext();`,
+			);
+
 			ShowWarningDialog(
 				"#ChangeWindowParams_Dialog_WarningTitle",
-				"#ChangeWindowParams_Dialog_WarningDescription",
+				`${strDescription} [olist] ${strDescriptionNav} [/olist]`,
 				onOK,
 			);
 			return;
@@ -400,14 +374,14 @@ abstract class BooleanSettingFieldBase<
 	 */
 	abstract m_strSettingsField: F;
 
-	state: BooleanSettingFieldState = { value: false };
-
 	/**
 	 * @returns the initial value to set on render.
 	 */
 	abstract GetInitialValue(): boolean;
 
 	abstract OnChange(value: boolean): void;
+
+	state: BooleanSettingFieldState = { value: false };
 
 	componentDidMount() {
 		const value = this.GetInitialValue();
@@ -426,9 +400,7 @@ abstract class BooleanSettingFieldBase<
 
 	render() {
 		const { fieldProps, strName } = this.props;
-		// for whatever reason ts thinks it may be a symbol... wtf is this shit?
-		// actually not if I make it "string" but it will if it's keyof Settings
-		const label = Localize(`#ChangeWindowParams_Verified_${strName as string}`);
+		const label = Localize(`#ChangeWindowParams_Verified_${strName}`);
 
 		return (
 			<Field label={label} {...fieldProps}>
@@ -574,7 +546,7 @@ function Actions() {
 	);
 }
 
-export function SettingsPanel() {
+function AdvancedSettings() {
 	const [bAdvancedMode, setAdvancedMode] = useState(false);
 	// Keep in sync with EParamType, too
 	const vecContents: PageMapFn_t[] = [
@@ -595,30 +567,34 @@ export function SettingsPanel() {
 		(param) => <TextParam name={param} />,
 	];
 
+	return !bAdvancedMode ? (
+		<LocalizedPanelSection strToken="#ChangeWindowParams_AdvancedMode_Title">
+			<LocalizedButton
+				onClick={() => {
+					ShowWarningDialog(
+						"#ChangeWindowParams_AdvancedMode_Title",
+						"#ChangeWindowParams_AdvancedMode_Description",
+						() => setAdvancedMode(true),
+					);
+				}}
+				strToken="#ChangeWindowParams_Buttons_AdvancedMode"
+			/>
+		</LocalizedPanelSection>
+	) : (
+		k_vecParamTypes.map((type, i) => (
+			<LocalizedPanelSection strToken={`#ChangeWindowParams_Tab_${type}`}>
+				{vecWindowParams[i].map((param) => vecContents[i](param))}
+			</LocalizedPanelSection>
+		))
+	);
+}
+
+export function SettingsPanel() {
 	return (
 		<>
 			<Actions />
 			<VerifiedSettings />
-			{!bAdvancedMode ? (
-				<LocalizedPanelSection strToken="#ChangeWindowParams_AdvancedMode_Title">
-					<LocalizedButton
-						onClick={() => {
-							ShowWarningDialog(
-								"#ChangeWindowParams_AdvancedMode_Title",
-								"#ChangeWindowParams_AdvancedMode_Description",
-								() => setAdvancedMode(true),
-							);
-						}}
-						strToken="#ChangeWindowParams_Buttons_AdvancedMode"
-					/>
-				</LocalizedPanelSection>
-			) : (
-				k_vecParamTypes.map((type, i) => (
-					<LocalizedPanelSection strToken={`#ChangeWindowParams_Tab_${type}`}>
-						{vecWindowParams[i].map((param) => vecContents[i](param))}
-					</LocalizedPanelSection>
-				))
-			)}
+			<AdvancedSettings />
 		</>
 	);
 }
