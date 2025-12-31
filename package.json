@@ -9,7 +9,7 @@
 		"dev": "millennium-ttc --build dev"
 	},
 	"dependencies": {
-		"@steambrew/client": "^5.8.3",
+		"@steambrew/client": "^5.8.4",
 		"@steambrew/ttc": "^2.8.6"
 	},
 	"devDependencies": {
