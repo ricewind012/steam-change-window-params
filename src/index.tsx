@@ -20,6 +20,9 @@ declare global {
 }
 
 type SteamPopup = { window: Window };
+type Unsubscribable = {
+	Unsubscribe: () => void;
+};
 
 const MAIN_WINDOW_NAME = "SP Desktop_uid0";
 
@@ -145,20 +148,27 @@ export default definePlugin(async () => {
 	};
 
 	const eInitialUIMode = await SteamClient.UI.GetUIMode();
-	if (
+	const vecHandles: Unsubscribable[] = [
 		eInitialUIMode === EUIMode.Desktop &&
-		!bStartedBeforeMainWindow &&
-		options.ApplyMainWindowWorkaround
-	) {
-		AddPopupCreatedCallback(MAIN_WINDOW_NAME, OnMainWindowCreated);
+			!bStartedBeforeMainWindow &&
+			options.ApplyMainWindowWorkaround &&
+			AddPopupCreatedCallback(MAIN_WINDOW_NAME, OnMainWindowCreated),
+		g_PopupManager.AddPopupCreatedCallback(OnPopupCreated),
+	].filter(Boolean);
+
+	function onDismount() {
+		window.open = pOriginalOpen;
+		for (const handle of vecHandles) {
+			handle.Unsubscribe();
+		}
 	}
 
-	g_PopupManager.AddPopupCreatedCallback(OnPopupCreated);
 	await InitLocalization();
 
 	return {
 		content: <SettingsPanel />,
 		icon: <IconsModule.SingleWindowToggle />,
+		onDismount,
 		title: "Change Window Params",
 	};
 });
