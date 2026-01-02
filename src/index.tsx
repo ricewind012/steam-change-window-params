@@ -19,7 +19,16 @@ declare global {
 	const SteamUIStore: any;
 }
 
-type SteamPopup = { window: Window };
+type SteamPopup = {
+	GetName(): string;
+	browser_info?: {
+		m_unPID: number;
+		m_nBrowserID: number;
+		m_eBrowserType: number;
+		m_eUIMode: EUIMode;
+	};
+	window: Window;
+};
 type Unsubscribable = {
 	Unsubscribe: () => void;
 };
@@ -92,8 +101,24 @@ async function OnMainWindowCreated() {
 }
 
 async function OnPopupCreated(pPopup: SteamPopup) {
-	const elRoot = pPopup.window.document.documentElement;
 	const params = GetParams();
+	const { options } = GetSettings();
+
+	const strName = pPopup.GetName();
+	const pBrowser = pPopup.browser_info;
+
+	const bOverlay = strName.startsWith("desktopoverlay_");
+	const bOverlayAsParent = pBrowser && pBrowser.m_unPID !== 0;
+	const bDontApply = [
+		options.ExcludeMenus && strName.startsWith("contextmenu_"),
+		options.ExcludeNotifications && strName.startsWith("notificationtoasts_"),
+		options.ExcludeOverlay && (bOverlay || bOverlayAsParent),
+	].find(Boolean);
+	if (bDontApply) {
+		return;
+	}
+
+	const elRoot = pPopup.window.document.documentElement;
 	for (const [k, v] of params) {
 		const value = ParseParamForHTMLAttribute(k, v);
 		elRoot.setAttribute(k, value);
