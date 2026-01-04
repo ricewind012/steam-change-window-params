@@ -185,7 +185,7 @@ class BoolParam extends Param<boolean> {
 
 	render() {
 		const { name } = this.props;
-		const token = `#ChangeWindowParams_ParamDesc_${name}`;
+		const token = `#ChangeWindowParams_ParamDesc_Bool_${name}`;
 
 		return (
 			<ParamField label={name} description={token}>
@@ -219,7 +219,7 @@ class EnumParam extends Param<SingleDropdownOption> {
 
 	render() {
 		const { name } = this.props;
-		const token = `#ChangeWindowParams_ParamDesc_${name}`;
+		const token = `#ChangeWindowParams_ParamDesc_Enum_${name}`;
 		const value = mapParamEnums[name];
 		const actualValue = Array.isArray(value)
 			? value.map((e) => ({ data: e, label: e }))
@@ -273,7 +273,7 @@ class FlagParam extends Param<boolean, FlagParamProps> {
 
 	render() {
 		const { name, member } = this.props;
-		const token = `#ChangeWindowParams_FlagDesc_${name}_${member}`;
+		const token = `#ChangeWindowParams_ParamDesc_Flag_${name}_${member}`;
 
 		return (
 			<ParamField label={member} description={token}>
@@ -298,7 +298,7 @@ class TextParam extends Param<string, TextParamProps> {
 
 	render() {
 		const { bNumeric, name } = this.props;
-		const token = `#ChangeWindowParams_ParamDesc_${name}`;
+		const token = `#ChangeWindowParams_ParamDesc_Text_${name}`;
 
 		return (
 			<ParamField label={name} description={token}>
@@ -441,7 +441,7 @@ class SimpleParam extends BooleanSettingFieldBase<
 
 function VerifiedSettings() {
 	return (
-		<LocalizedPanelSection strToken="#ChangeWindowParams_Tab_Verified">
+		<LocalizedPanelSection strToken="#ChangeWindowParams_Section_Verified">
 			<BooleanSetting
 				fieldProps={{
 					bottomSeparator: "thick",
@@ -554,7 +554,7 @@ function AdvancedSettings() {
 		</LocalizedPanelSection>
 	) : (
 		k_vecParamTypes.map((type, i) => (
-			<LocalizedPanelSection strToken={`#ChangeWindowParams_Tab_${type}`}>
+			<LocalizedPanelSection strToken={`#ChangeWindowParams_Section_${type}`}>
 				{vecWindowParams[i].map((param) => vecContents[i](param))}
 			</LocalizedPanelSection>
 		))

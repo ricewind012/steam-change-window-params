@@ -2,7 +2,7 @@
 	"$schema": "https://raw.githubusercontent.com/SteamClientHomebrew/Millennium/main/src/sys/plugin-schema.json",
 	"name": "steam-change-window-params",
 	"common_name": "Change Window Params",
-	"description": "Modify how Steam displays windows",
+	"description": "Use system titlebar, transparent windows, no size limits, etc.",
 	"include": ["./locales"],
 	"version": "1.0.0",
 	"frontend": "src",
