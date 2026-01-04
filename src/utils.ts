@@ -1,6 +1,11 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: intentional */
 
-import type { SingleDropdownOption } from "@steambrew/client";
+import {
+	type ShowModalProps,
+	type SingleDropdownOption,
+	showModal,
+} from "@steambrew/client";
+import type { ReactNode } from "react";
 
 type EnumObject_t = [string, number][];
 
@@ -32,3 +37,11 @@ export const EnumToDropdown = (e: any) =>
 
 export const EnumToObject = (e: any) =>
 	Object.entries(e).filter((e) => typeof e[1] === "number") as EnumObject_t;
+
+/**
+ * Cool wrapper for {@link showModal} that doesn't require a parent.
+ */
+export function ShowDialog(modal: ReactNode, props: ShowModalProps) {
+	const wnd = SteamUIStore.WindowStore.MainWindowInstance.BrowserWindow;
+	return showModal(modal, wnd, props);
+}

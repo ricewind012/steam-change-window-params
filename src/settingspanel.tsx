@@ -6,7 +6,6 @@ import {
 	type FieldProps,
 	PanelSectionRow,
 	type SingleDropdownOption,
-	showModal,
 	TextField,
 	Toggle,
 } from "@steambrew/client";
@@ -17,6 +16,7 @@ import {
 	useState,
 } from "react";
 
+import { PLUGIN_NAME } from "./consts";
 import { LocalizedButton, LocalizedPanelSection } from "./localized";
 import { CLog } from "./logger";
 import { BBCodeParser } from "./modules/bbcode";
@@ -27,7 +27,6 @@ import {
 	mapParamFlags,
 	RemoveSettingsKey,
 	ResetSettings,
-	SETTINGS_KEY,
 	SetSettingsKey,
 	type Settings,
 	type WindowParamValue_t,
@@ -38,7 +37,12 @@ import {
 	type WindowParam_t,
 	type WindowParamMap_t,
 } from "./types";
-import { AreTwoArraysEqual, EnumToDropdown, EnumToObject } from "./utils";
+import {
+	AreTwoArraysEqual,
+	EnumToDropdown,
+	EnumToObject,
+	ShowDialog,
+} from "./utils";
 
 // biome-ignore lint/correctness/noUnusedVariables: Needed for demonstration
 enum EParamType {
@@ -53,10 +57,6 @@ type PageMapFn_t = (param: WindowParam_t) => ReactNode;
 
 const k_vecParamTypes = ["Booleans", "Enums", "Flags", "Numbers", "Strings"];
 const k_pDefaultDropdownValue: SingleDropdownOption = { data: 0, label: "--" };
-const k_pWarners: WindowParamMap_t<string[]> = {
-	browserType: ["OffScreen", "Offscreen_SteamUI"],
-	createflags: ["Hidden"],
-};
 
 const mapParamDescriptionArgs: WindowParamMap_t<string[]> = {
 	restoredetails: ["1&x=604&y=257&w=1010&h=600"],
@@ -97,7 +97,7 @@ const SettingsDialogSubHeader = ({ children }: PropsWithChildren) => (
 
 /**
  * @param strTitle Loc token
- * @param strDescription Loc token
+ * @param strDescription NOT Loc token
  * @param onOK
  */
 function ShowWarningDialog(
@@ -105,13 +105,11 @@ function ShowWarningDialog(
 	strDescription: string,
 	onOK: () => void,
 ) {
-	const wnd = SteamUIStore.WindowStore.MainWindowInstance.BrowserWindow;
-	showModal(
+	ShowDialog(
 		<ConfirmModal bDestructiveWarning onOK={onOK} strTitle={Localize(strTitle)}>
 			<style>{".DialogBodyText code { user-select: all; }"}</style>
-			<BBCodeParser text={Localize(strDescription)} />
+			<BBCodeParser text={strDescription} />
 		</ConfirmModal>,
-		wnd,
 		{ bNeverPopOut: true },
 	);
 }
@@ -273,37 +271,6 @@ class FlagParam extends Param<boolean, FlagParamProps> {
 		g_pLogger.Log("%o => %o", name, vecAllFlags);
 	}
 
-	OnChange(value: boolean) {
-		const { name, member } = this.props;
-		const onOK = () => {
-			this.ChangeParam(value);
-		};
-
-		const bShowDialog = value && k_pWarners[name]?.some((e) => member === e);
-		if (bShowDialog) {
-			const strDescription = Localize(
-				"#ChangeWindowParams_Dialog_WarningDescription",
-			);
-			const strDescriptionNav = Localize(
-				"#ChangeWindowParams_Dialog_WarningDescription_Nav",
-				"--remote-debugging-port",
-				"steamwebhelper",
-				"8080",
-				"http://localhost:{port} > SharedJSContext",
-				`localStorage.removeItem("${SETTINGS_KEY}"); SteamClient.Browser.RestartJSContext();`,
-			);
-
-			ShowWarningDialog(
-				"#ChangeWindowParams_Dialog_WarningTitle",
-				`${strDescription} [olist] ${strDescriptionNav} [/olist]`,
-				onOK,
-			);
-			return;
-		}
-
-		onOK();
-	}
-
 	render() {
 		const { name, member } = this.props;
 		const token = `#ChangeWindowParams_FlagDesc_${name}_${member}`;
@@ -311,7 +278,7 @@ class FlagParam extends Param<boolean, FlagParamProps> {
 		return (
 			<ParamField label={member} description={token}>
 				<Toggle
-					onChange={(value) => this.OnChange(value)}
+					onChange={(value) => this.ChangeParam(value)}
 					value={this.state.value}
 				/>
 			</ParamField>
@@ -572,9 +539,13 @@ function AdvancedSettings() {
 		<LocalizedPanelSection strToken="#ChangeWindowParams_AdvancedMode_Title">
 			<LocalizedButton
 				onClick={() => {
+					const strDescription = Localize(
+						"#ChangeWindowParams_AdvancedMode_Description",
+						`steam://millennium/settings/plugins/disable/${PLUGIN_NAME}`,
+					);
 					ShowWarningDialog(
 						"#ChangeWindowParams_AdvancedMode_Title",
-						"#ChangeWindowParams_AdvancedMode_Description",
+						strDescription,
 						() => setAdvancedMode(true),
 					);
 				}}

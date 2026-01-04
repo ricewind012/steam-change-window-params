@@ -1,5 +1,5 @@
 {
-	"ChangeWindowParams_AdvancedMode_Description": "Anything not shown above may have [b]unintended side effects[/b] if you don't know what you're doing!",
+	"ChangeWindowParams_AdvancedMode_Description": "Anything not in verified settings may have [b]unintended side effects[/b] if you don't know what you're doing! If anything bad happens, you can always execute the [c]%1$s[/c] URL to disable the plugin. Do NOT open issues about anything in advanced mode.",
 	"ChangeWindowParams_AdvancedMode_Title": "Advanced Mode",
 
 	"ChangeWindowParams_Buttons_AdvancedMode": "Enable advanced mode",
@@ -9,9 +9,6 @@
 	"ChangeWindowParams_ButtonsHeader": "Actions",
 
 	"ChangeWindowParams_Dialog_SettingsTitle": "Plugin Settings",
-	"ChangeWindowParams_Dialog_WarningDescription": "The next time you open a window or restart Steam, [b]NO WINDOWS[/b] will appear (or something else may happen) and you will have to revert it through other means:",
-	"ChangeWindowParams_Dialog_WarningDescription_Nav": "[*] Find the Millennium port (look for %1$s in %2$s's command line, the port is %3$s if started in dev mode) [*] Go to %4$s > Console [*] Type the following: [code]%5$s[/code]",
-	"ChangeWindowParams_Dialog_WarningTitle": "Warning",
 
 	"ChangeWindowParams_EnumDesc_browserType_ChildHWNDNative": "",
 	"ChangeWindowParams_EnumDesc_browserType_DirectHWND": "A normal window (with system titlebar)",

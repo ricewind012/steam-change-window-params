@@ -27,7 +27,7 @@ export interface Settings {
 	simpleParams: WindowParamMap_t<WindowParamValue_t>;
 }
 
-export const SETTINGS_KEY = `${plugin.name}-settings`;
+const SETTINGS_KEY = `${plugin.name}-settings`;
 const DEFAULT_SETTINGS: Settings = {
 	options: {},
 	params: {},
