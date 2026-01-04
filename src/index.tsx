@@ -1,37 +1,15 @@
 import { definePlugin, EUIMode, IconsModule, sleep } from "@steambrew/client";
 
-import { PLUGIN_PATH } from "./consts";
-import { CLog } from "./logger";
+import { SettingsPanel } from "@/components/settingspanel";
+import { PLUGIN_PATH } from "@/consts";
+import { CLog } from "@/logger";
 import {
 	GetParams,
 	GetSettings,
 	ParseParam,
 	ParseParamForHTMLAttribute,
-} from "./settings";
-import { SettingsPanel } from "./settingspanel";
-
-declare global {
-	// biome-ignore lint/suspicious/noExplicitAny: XD
-	const g_PopupManager: any;
-	// biome-ignore lint/suspicious/noExplicitAny: XD
-	const LocalizationManager: any;
-	// biome-ignore lint/suspicious/noExplicitAny: XD
-	const SteamUIStore: any;
-}
-
-type SteamPopup = {
-	GetName(): string;
-	browser_info?: {
-		m_unPID: number;
-		m_nBrowserID: number;
-		m_eBrowserType: number;
-		m_eUIMode: EUIMode;
-	};
-	window: Window;
-};
-type Unsubscribable = {
-	Unsubscribe: () => void;
-};
+} from "@/settings";
+import type { SteamPopup, Unsubscribable } from "@/types";
 
 const MAIN_WINDOW_NAME = "SP Desktop_uid0";
 

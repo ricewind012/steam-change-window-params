@@ -37,6 +37,30 @@ export enum EPopupCreationFlags {
 	IgnoreSteamDisplayScale = 1 << 21,
 	TransparentParentWindow = 1 << 22,
 }
+
+export interface SteamPopup {
+	GetName(): string;
+	browser_info?: {
+		m_unPID: number;
+		m_nBrowserID: number;
+		m_eBrowserType: number;
+		m_eUIMode: number;
+	};
+	window: Window;
+}
+
+export interface Unsubscribable {
+	Unsubscribe: () => void;
+}
+
+declare global {
+	// biome-ignore lint/suspicious/noExplicitAny: XD
+	const g_PopupManager: any;
+	// biome-ignore lint/suspicious/noExplicitAny: XD
+	const LocalizationManager: any;
+	// biome-ignore lint/suspicious/noExplicitAny: XD
+	const SteamUIStore: any;
+}
 // #endregion
 
 export type WindowParam_t =

@@ -1,6 +1,6 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: console.log() args */
 
-import { PLUGIN_NAME } from "./consts";
+import { PLUGIN_NAME } from "@/consts";
 
 const LOG_STYLE = "padding: 0 1ch";
 

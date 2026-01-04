@@ -1,12 +1,12 @@
 import { findModuleByExport } from "@steambrew/client";
 
-import plugin from "../plugin.json";
+import { PLUGIN_NAME } from "@/consts";
 import {
 	EBrowserType,
 	EPopupCreationFlags,
 	type WindowParam_t,
 	type WindowParamMap_t,
-} from "./types";
+} from "@/types";
 
 export type GetParamsResult_t = [WindowParam_t, WindowParamValue_t][];
 
@@ -27,7 +27,7 @@ export interface Settings {
 	simpleParams: WindowParamMap_t<WindowParamValue_t>;
 }
 
-const SETTINGS_KEY = `${plugin.name}-settings`;
+const SETTINGS_KEY = `${PLUGIN_NAME}-settings`;
 const DEFAULT_SETTINGS: Settings = {
 	options: {},
 	params: {},

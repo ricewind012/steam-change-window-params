@@ -1,7 +1,7 @@
 import { DialogButton, PanelSection } from "@steambrew/client";
 import type { PropsWithChildren } from "react";
 
-import { Localize } from "./modules/localization";
+import { Localize } from "@/modules/localization";
 
 interface LocalizedBaseProps {
 	/**

@@ -16,11 +16,11 @@ import {
 	useState,
 } from "react";
 
-import { PLUGIN_NAME } from "./consts";
-import { LocalizedButton, LocalizedPanelSection } from "./localized";
-import { CLog } from "./logger";
-import { BBCodeParser } from "./modules/bbcode";
-import { Localize } from "./modules/localization";
+import { LocalizedButton, LocalizedPanelSection } from "@/components/localized";
+import { PLUGIN_NAME } from "@/consts";
+import { CLog } from "@/logger";
+import { BBCodeParser } from "@/modules/bbcode";
+import { Localize } from "@/modules/localization";
 import {
 	GetSettings,
 	mapParamEnums,
@@ -30,19 +30,19 @@ import {
 	SetSettingsKey,
 	type Settings,
 	type WindowParamValue_t,
-} from "./settings";
+} from "@/settings";
 import {
 	EBrowserType,
 	EPopupCreationFlags,
 	type WindowParam_t,
 	type WindowParamMap_t,
-} from "./types";
+} from "@/types";
 import {
 	AreTwoArraysEqual,
 	EnumToDropdown,
 	EnumToObject,
 	ShowDialog,
-} from "./utils";
+} from "@/utils";
 
 // biome-ignore lint/correctness/noUnusedVariables: Needed for demonstration
 enum EParamType {

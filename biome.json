@@ -6,7 +6,13 @@
 				"organizeImports": {
 					"level": "on",
 					"options": {
-						"groups": [":PACKAGE:", ":BLANK_LINE:", ":PATH:"]
+						"groups": [
+							":PACKAGE:",
+							":BLANK_LINE:",
+							":ALIAS:",
+							":BLANK_LINE:",
+							":PATH:"
+						]
 					}
 				},
 				"useSortedKeys": "on"

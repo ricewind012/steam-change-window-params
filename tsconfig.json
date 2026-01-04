@@ -6,6 +6,9 @@
 		"jsxFragmentFactory": "window.SP_REACT.Fragment",
 		"module": "esnext",
 		"moduleResolution": "node",
+		"paths": {
+			"@/*": ["./src/*"]
+		},
 		"resolveJsonModule": true,
 		"target": "esnext"
 	},
