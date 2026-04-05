@@ -4,7 +4,7 @@
 	"common_name": "Change Window Params",
 	"description": "Use system titlebar, transparent windows, no size limits, etc.",
 	"include": ["./locales"],
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"frontend": "src",
 	"useBackend": false
 }
