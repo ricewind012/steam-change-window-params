@@ -114,8 +114,8 @@ export default definePlugin(async () => {
 	window.open = (url, target, features) => {
 		const bIsBPMWindow =
 			target === "SP BPM_uid0" ||
-			target.startsWith("MainMenu_") ||
-			target.startsWith("QuickAccess_");
+			target?.startsWith("MainMenu_") ||
+			target?.startsWith("QuickAccess_");
 		if (bIsBPMWindow) {
 			g_pLogger.Log("window.open: ignoring %o, is a BPM window", target);
 			return pOriginalOpen(url, target, features);
@@ -123,13 +123,13 @@ export default definePlugin(async () => {
 
 		const pNewURL = new URL(url);
 
-		const bOverlay = target.startsWith("desktopoverlay_");
+		const bOverlay = target?.startsWith("desktopoverlay_");
 		const bOverlayAsParent =
 			pNewURL.searchParams.has("pid") &&
 			pNewURL.searchParams.get("pid") !== "0";
 		const bDontApply = [
-			options.ExcludeMenus && target.startsWith("contextmenu_"),
-			options.ExcludeNotifications && target.startsWith("notificationtoasts_"),
+			options.ExcludeMenus && target?.startsWith("contextmenu_"),
+			options.ExcludeNotifications && target?.startsWith("notificationtoasts_"),
 			options.ExcludeOverlay && (bOverlay || bOverlayAsParent),
 		].find(Boolean);
 		if (bDontApply) {
