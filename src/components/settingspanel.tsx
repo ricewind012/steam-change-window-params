@@ -136,7 +136,6 @@ class Param<S, P = ParamProps> extends Component<
 
 	ConvertParamToState() {
 		const param = this.m_pSettings.params[this.props.name];
-
 		return param as S;
 	}
 
@@ -148,39 +147,38 @@ class Param<S, P = ParamProps> extends Component<
 	}
 }
 
-interface ParamFieldProps extends FieldProps {
-	/** Param name. */
+interface ParamFieldProps extends PropsWithChildren {
+	fieldProps?: Exclude<FieldProps, "description" | "label">;
+
+	/**
+	 * Param name.
+	 */
 	label: string;
-	/** Description loc token. */
+
+	/**
+	 * Description loc token.
+	 */
 	description: string;
 }
 
-function ParamField({
-	inlineWrap,
-	label,
-	description,
-	children,
-}: ParamFieldProps) {
+function ParamField(props: ParamFieldProps) {
+	const { label, description, fieldProps, children } = props;
 	const args = mapParamDescriptionArgs[label] || [];
 	const text = Localize(description, ...args);
 	const bbcode = <BBCodeParser text={text} />;
 
 	return (
-		<Field label={label} description={bbcode} inlineWrap={inlineWrap}>
+		<Field label={label} description={bbcode} {...fieldProps}>
 			{children}
 		</Field>
 	);
 }
 
 class BoolParam extends Param<boolean> {
-	constructor(props: ParamProps) {
-		super(props);
-		this.state = { value: false };
-	}
+	state = { value: false };
 
 	ConvertParamToState() {
 		const param = this.m_pSettings.params[this.props.name];
-
 		return param === true;
 	}
 
@@ -204,10 +202,7 @@ class BoolParam extends Param<boolean> {
 }
 
 class EnumParam extends Param<SingleDropdownOption> {
-	constructor(props: ParamProps) {
-		super(props);
-		this.state = { value: k_pDefaultDropdownValue };
-	}
+	state = { value: k_pDefaultDropdownValue };
 
 	ConvertParamToState() {
 		const { name } = this.props;
@@ -249,10 +244,7 @@ interface FlagParamProps extends ParamProps {
 }
 
 class FlagParam extends Param<boolean, FlagParamProps> {
-	constructor(props: FlagParamProps) {
-		super(props);
-		this.state = { value: false };
-	}
+	state = { value: false };
 
 	ConvertParamToState() {
 		const { flag } = this.props;
@@ -296,10 +288,7 @@ interface TextParamProps extends ParamProps {
 }
 
 class TextParam extends Param<string, TextParamProps> {
-	constructor(props: TextParamProps) {
-		super(props);
-		this.state = { value: "" };
-	}
+	state = { value: "" };
 
 	render() {
 		const { bNumeric, name } = this.props;
@@ -307,7 +296,7 @@ class TextParam extends Param<string, TextParamProps> {
 
 		return (
 			<ParamField
-				inlineWrap="shift-children-below"
+				fieldProps={{ inlineWrap: "shift-children-below" }}
 				label={name}
 				description={token}
 			>

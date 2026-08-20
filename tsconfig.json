@@ -1,16 +1,12 @@
 {
 	"compilerOptions": {
 		"allowSyntheticDefaultImports": true,
-		"jsx": "react",
-		"jsxFactory": "window.SP_REACT.createElement",
-		"jsxFragmentFactory": "window.SP_REACT.Fragment",
-		"module": "esnext",
+		"jsx": "react-jsx",
 		"moduleResolution": "node",
 		"paths": {
 			"@/*": ["./src/*"]
 		},
 		"resolveJsonModule": true,
 		"target": "esnext"
-	},
-	"exclude": ["src/sharedjscontextglobals/generated"]
+	}
 }
