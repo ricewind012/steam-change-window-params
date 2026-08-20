@@ -155,13 +155,18 @@ interface ParamFieldProps extends FieldProps {
 	description: string;
 }
 
-function ParamField({ label, description, children }: ParamFieldProps) {
+function ParamField({
+	inlineWrap,
+	label,
+	description,
+	children,
+}: ParamFieldProps) {
 	const args = mapParamDescriptionArgs[label] || [];
 	const text = Localize(description, ...args);
 	const bbcode = <BBCodeParser text={text} />;
 
 	return (
-		<Field label={label} description={bbcode}>
+		<Field label={label} description={bbcode} inlineWrap={inlineWrap}>
 			{children}
 		</Field>
 	);
@@ -301,7 +306,11 @@ class TextParam extends Param<string, TextParamProps> {
 		const token = `#ChangeWindowParams_ParamDesc_Text_${name}`;
 
 		return (
-			<ParamField label={name} description={token}>
+			<ParamField
+				inlineWrap="shift-children-below"
+				label={name}
+				description={token}
+			>
 				<TextField
 					onChange={({ target }) => this.ChangeParam(target.value)}
 					mustBeNumeric={bNumeric}
