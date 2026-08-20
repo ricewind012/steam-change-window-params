@@ -19,9 +19,9 @@ export type WindowParamValue_t = number[] | string | boolean;
 export interface Settings {
 	options: {
 		ApplyMainWindowWorkaround?: boolean;
-		ExcludeMenus?: boolean;
-		ExcludeNotifications?: boolean;
-		ExcludeOverlay?: boolean;
+		IncludeMenus?: boolean;
+		IncludeNotifications?: boolean;
+		IncludeOverlay?: boolean;
 	};
 	params: WindowParamMap_t<WindowParamValue_t>;
 	simpleParams: WindowParamMap_t<WindowParamValue_t>;

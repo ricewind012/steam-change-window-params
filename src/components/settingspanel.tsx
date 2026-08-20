@@ -455,14 +455,14 @@ function VerifiedSettings() {
 				mapParams={{ browserType: EBrowserType.DirectHWND.toString() }}
 				strName="SystemTitlebar"
 			/>
-			<BooleanSetting fieldProps={{ indentLevel: 1 }} strName="ExcludeMenus" />
+			<BooleanSetting fieldProps={{ indentLevel: 1 }} strName="IncludeMenus" />
 			<BooleanSetting
 				fieldProps={{ indentLevel: 1 }}
-				strName="ExcludeNotifications"
+				strName="IncludeNotifications"
 			/>
 			<BooleanSetting
 				fieldProps={{ indentLevel: 1 }}
-				strName="ExcludeOverlay"
+				strName="IncludeOverlay"
 			/>
 			<SimpleParam
 				mapParams={{

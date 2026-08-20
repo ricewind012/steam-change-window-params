@@ -73,9 +73,9 @@
 
 	"ChangeWindowParams_Verified_ApplyMainWindowWorkaround": "Apply main window workaround",
 	"ChangeWindowParams_Verified_ApplyMainWindowWorkaround_Description": "The plugin doesn't start early enough sometimes to modify the main window. This fixes it... by changing to Big Picture Mode and back (lol).",
-	"ChangeWindowParams_Verified_ExcludeMenus": "Exclude menus",
-	"ChangeWindowParams_Verified_ExcludeNotifications": "Exclude notifications",
-	"ChangeWindowParams_Verified_ExcludeOverlay": "Exclude overlay (and its windows)",
+	"ChangeWindowParams_Verified_IncludeMenus": "Include menus",
+	"ChangeWindowParams_Verified_IncludeNotifications": "Include notifications",
+	"ChangeWindowParams_Verified_IncludeOverlay": "Include overlay (and its windows)",
 	"ChangeWindowParams_Verified_NoSizeLimit": "No window size limit",
 	"ChangeWindowParams_Verified_SystemTitlebar": "Use system titlebar",
 	"ChangeWindowParams_Verified_TransparentWindow": "Transparent windows"

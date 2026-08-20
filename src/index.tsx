@@ -60,6 +60,26 @@ function AddPopupCreatedCallback(
 	});
 }
 
+function WillApplyWindowOptions(strName: string, unPID: number) {
+	const { options } = GetSettings();
+
+	const bIsMenu = strName.startsWith("contextmenu_");
+	const bIsNotification = strName.startsWith("notificationtoasts_");
+	const bIsOverlay = strName.startsWith("desktopoverlay_");
+	const bIsOverlayParent = unPID !== 0;
+
+	// Other windows are outside the options' range.
+	if (bIsMenu || bIsNotification || bIsOverlay || bIsOverlayParent) {
+		return true;
+	}
+
+	const bOptionsApply =
+		(options.IncludeMenus && bIsMenu) ||
+		(options.IncludeNotifications && bIsNotification) ||
+		(options.IncludeOverlay && (bIsOverlay || bIsOverlayParent));
+	return bOptionsApply;
+}
+
 async function OnMainWindowCreated() {
 	if (g_bMainWindowWorkaroundApplied) {
 		return;
@@ -80,19 +100,10 @@ async function OnMainWindowCreated() {
 
 async function OnPopupCreated(pPopup: SteamPopup) {
 	const params = GetParams();
-	const { options } = GetSettings();
 
 	const strName = pPopup.GetName();
-	const pBrowser = pPopup.browser_info;
-
-	const bOverlay = strName.startsWith("desktopoverlay_");
-	const bOverlayAsParent = pBrowser && pBrowser.m_unPID !== 0;
-	const bDontApply = [
-		options.ExcludeMenus && strName.startsWith("contextmenu_"),
-		options.ExcludeNotifications && strName.startsWith("notificationtoasts_"),
-		options.ExcludeOverlay && (bOverlay || bOverlayAsParent),
-	].find(Boolean);
-	if (bDontApply) {
+	const unPID = pPopup.browser_info?.m_unPID ?? 0;
+	if (!WillApplyWindowOptions(strName, unPID)) {
 		return;
 	}
 
@@ -122,17 +133,8 @@ export default definePlugin(async () => {
 		}
 
 		const pNewURL = new URL(url);
-
-		const bOverlay = target?.startsWith("desktopoverlay_");
-		const bOverlayAsParent =
-			pNewURL.searchParams.has("pid") &&
-			pNewURL.searchParams.get("pid") !== "0";
-		const bDontApply = [
-			options.ExcludeMenus && target?.startsWith("contextmenu_"),
-			options.ExcludeNotifications && target?.startsWith("notificationtoasts_"),
-			options.ExcludeOverlay && (bOverlay || bOverlayAsParent),
-		].find(Boolean);
-		if (bDontApply) {
+		const unPID = Number(pNewURL.searchParams.get("pid") ?? "0");
+		if (!WillApplyWindowOptions(target ?? "", unPID)) {
 			g_pLogger.Log("window.open: ignoring %o by preference", target);
 			return pOriginalOpen(url, target, features);
 		}
