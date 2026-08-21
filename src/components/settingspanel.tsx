@@ -516,21 +516,21 @@ function AdvancedSettings() {
 	const [bAdvancedMode, setAdvancedMode] = useState(false);
 	// Keep in sync with EParamType, too
 	const vecContents: PageMapFn_t[] = [
-		(param) => <BoolParam name={param} />,
-		(param) => <EnumParam name={param} />,
+		(param) => <BoolParam key={param} name={param} />,
+		(param) => <EnumParam key={param} name={param} />,
 		// TODO: retain flags option
 		(param) => (
 			<PanelSectionRow>
 				<DialogControlsSection>
 					<SettingsDialogSubHeader>{param}</SettingsDialogSubHeader>
 					{EnumToObject(mapParamFlags[param]).map(([member, flag]) => (
-						<FlagParam name={param} member={member} flag={flag} />
+						<FlagParam key={member} name={param} member={member} flag={flag} />
 					))}
 				</DialogControlsSection>
 			</PanelSectionRow>
 		),
-		(param) => <TextParam bNumeric name={param} />,
-		(param) => <TextParam name={param} />,
+		(param) => <TextParam key={param} bNumeric name={param} />,
+		(param) => <TextParam key={param} name={param} />,
 	];
 
 	return !bAdvancedMode ? (
@@ -552,7 +552,10 @@ function AdvancedSettings() {
 		</LocalizedPanelSection>
 	) : (
 		k_vecParamTypes.map((type, i) => (
-			<LocalizedPanelSection strToken={`#ChangeWindowParams_Section_${type}`}>
+			<LocalizedPanelSection
+				key={type}
+				strToken={`#ChangeWindowParams_Section_${type}`}
+			>
 				{vecWindowParams[i].map((param) => vecContents[i](param))}
 			</LocalizedPanelSection>
 		))
