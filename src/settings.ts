@@ -22,6 +22,9 @@ export interface Settings {
 		IncludeMenus?: boolean;
 		IncludeNotifications?: boolean;
 		IncludeOverlay?: boolean;
+		SystemTitlebar?: boolean;
+		TransparentWindow?: boolean;
+		NoSizeLimit?: boolean;
 	};
 	params: WindowParamMap_t<WindowParamValue_t>;
 	simpleParams: WindowParamMap_t<WindowParamValue_t>;
