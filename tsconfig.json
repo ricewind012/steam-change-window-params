@@ -1,12 +1,13 @@
 {
-	"compilerOptions": {
-		"allowSyntheticDefaultImports": true,
-		"jsx": "react-jsx",
-		"moduleResolution": "node",
-		"paths": {
-			"@/*": ["./src/*"]
-		},
-		"resolveJsonModule": true,
-		"target": "esnext"
-	}
+  "compilerOptions": {
+    "paths": {
+      "millennium": [
+        "./.millennium/lsp/ts"
+      ]
+    },
+    "typeRoots": [
+      "./.millennium/types",
+      "./node_modules/@types"
+    ]
+  }
 }

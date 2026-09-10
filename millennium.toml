@@ -1,0 +1,19 @@
+[plugin]
+author = "ricewind"
+description = "Modify how Steam displays windows"
+id = "steam-change-window-params"
+name = "Change Window Params (starlight)"
+version = "1.0.2"
+
+[assets]
+resources = ["locales"]
+
+[backend]
+entry = "src/backend/main.lua"
+sources = ["src/backend/**/*.lua"]
+
+[frontend]
+entry = "src/frontend/index.tsx"
+
+[dev]
+#reload_steamui_when = "both"

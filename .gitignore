@@ -4,3 +4,4 @@ node_modules
 src/modules/popup.ts
 src/modules/titlebar.ts
 src/settingsdialogusingpopupbase.tsx
+.millennium/lsp/

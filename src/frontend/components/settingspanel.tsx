@@ -8,7 +8,7 @@ import {
 	type SingleDropdownOption,
 	TextField,
 	Toggle,
-} from "@steambrew/client";
+} from "millennium";
 import {
 	type PropsWithChildren,
 	type ReactNode,
