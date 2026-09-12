@@ -1,13 +1,12 @@
 {
-  "compilerOptions": {
-    "paths": {
-      "millennium": [
-        "./.millennium/lsp/ts"
-      ]
-    },
-    "typeRoots": [
-      "./.millennium/types",
-      "./node_modules/@types"
-    ]
-  }
+	"compilerOptions": {
+		"allowSyntheticDefaultImports": true,
+		"jsx": "react-jsx",
+		"moduleResolution": "bundler",
+		"paths": {
+			"@/*": ["./src/frontend/*"],
+			"millennium": ["./.millennium/lsp/ts"]
+		},
+		"resolveJsonModule": true
+	}
 }

@@ -1,7 +1,6 @@
 import { definePlugin, EUIMode, IconsModule, sleep } from "millennium";
 
 import { SettingsPanel } from "@/components/settingspanel";
-import { PLUGIN_PATH } from "@/consts";
 import { CLog } from "@/logger";
 import {
 	GetParams,
@@ -11,28 +10,24 @@ import {
 } from "@/settings";
 import type { SteamPopup, Unsubscribable } from "@/types";
 
+import english from "../../locales/english.json";
+
 const MAIN_WINDOW_NAME = "SP Desktop_uid0";
 
 let g_bMainWindowWorkaroundApplied = false;
 const g_pLogger = new CLog("index");
 
-/**
- * Replacement function to avoid JSON modules because of localization - it's
- * easier to just create 1 file instead of doing the same thing, then typing an
- * import somewhere here, checking if it works, and so on.
- *
- * @param path A path that's relative to the plugin's path.
- */
-async function ImportJSON(path: string) {
-	return (await fetch(`${PLUGIN_PATH}/${path}`)).json();
-}
+const locales: Record<string, Record<string, string>> = {
+	english,
+};
 
 async function InitLocalization() {
 	const lang = await SteamClient.Settings.GetCurrentLanguage();
-	const tokens = await ImportJSON(`locales/${lang}.json`).catch(() => {
+	let tokens = locales[lang];
+	if (!tokens) {
 		g_pLogger.Warn("No %o locale, reverting to English", lang);
-		return ImportJSON(`locales/english.json`);
-	});
+		tokens = locales.english;
+	}
 
 	LocalizationManager.AddTokens(tokens);
 }

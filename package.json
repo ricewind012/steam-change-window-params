@@ -1,19 +1,18 @@
 {
-  "name": "steam-change-window-params",
-  "version": "1.0.2",
-  "description": "Modify how Steam displays windows",
-  "main": "./src/frontend/index.tsx",
-  "type": "module",
-  "scripts": {
-    "build": "starlight",
-    "prepare": "starlight lsp"
-  },
-  "dependencies": {
-    "@steambrew/starlight": "^1.1.4"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^2.5.10",
-    "@types/react": "19.1.1",
-    "@types/react-dom": "19.1.1"
-  }
+	"name": "steam-change-window-params",
+	"version": "1.0.2",
+	"description": "Modify how Steam displays windows",
+	"main": "./src/frontend/index.tsx",
+	"type": "module",
+	"scripts": {
+		"build": "starlight"
+	},
+	"dependencies": {
+		"@steambrew/starlight": "^1.1.4"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.5.10",
+		"@types/react": "19.1.1",
+		"@types/react-dom": "19.1.1"
+	}
 }

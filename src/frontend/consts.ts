@@ -1,6 +1,4 @@
-import plugin from "../plugin.json";
-
-export const PLUGIN_NAME = plugin.name;
+export const PLUGIN_NAME = "steam-change-window-params";
 export const PLUGIN_PATH = (() => {
 	const script = document.querySelector(
 		`script[src*="${PLUGIN_NAME}"]`,
