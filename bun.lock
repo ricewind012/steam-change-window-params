@@ -5,7 +5,7 @@
     "": {
       "name": "steam-change-window-params",
       "dependencies": {
-        "@steambrew/starlight": "^1.1.4",
+        "@steambrew/starlight": "^1.1.5",
       },
       "devDependencies": {
         "@biomejs/biome": "^2.5.10",
@@ -33,7 +33,7 @@
 
     "@biomejs/cli-win32-x64": ["@biomejs/cli-win32-x64@2.5.10", "", { "os": "win32", "cpu": "x64" }, "sha512-M+2dgBsl3lXRiTfgPVc2p3anS4Tocojke4rzFLScZ2Y/wmF+36dRb1iHCLiyGqOzQGyTplZH1HnEYviiAqi3nA=="],
 
-    "@steambrew/starlight": ["@steambrew/starlight@1.1.4", "", { "bin": { "starlight": "bin/starlight.js" } }, "sha512-shd8fd/p53RJIwg/i/6y2aueEQVuPW1u5oGKlJIm+aco2B2g0wObIoZxdfdp1t3dBRfZ/4GwH3LcfoaHLla+5Q=="],
+    "@steambrew/starlight": ["@steambrew/starlight@1.1.5", "", { "bin": { "starlight": "bin/starlight.js" } }, "sha512-1I4zk6x8LW59BjVNNrPxnctkKR/WJa0zfdaMQo8YWO8ayjbsD9Czw0Xy9FstRV/hyJ/ArB6jhGn1cRpfakt2ZQ=="],
 
     "@types/react": ["@types/react@19.1.1", "", { "dependencies": { "csstype": "^3.0.2" } }, "sha512-ePapxDL7qrgqSF67s0h9m412d9DbXyC1n59O2st+9rjuuamWsZuD2w55rqY12CbzsZ7uVXb5Nw0gEp9Z8MMutQ=="],
 
