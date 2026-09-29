@@ -1,4 +1,4 @@
-import { DialogButton, PanelSection } from "@steambrew/client";
+import { DialogButton, PanelSection } from "millennium";
 import type { PropsWithChildren } from "react";
 
 import { Localize } from "@/modules/localization";

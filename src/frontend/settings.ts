@@ -1,4 +1,4 @@
-import { findModuleByExport } from "@steambrew/client";
+import { findModuleByExport } from "millennium";
 
 import { PLUGIN_NAME } from "@/consts";
 import {

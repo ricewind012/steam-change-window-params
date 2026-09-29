@@ -20,6 +20,6 @@
 		}
 	},
 	"files": {
-		"includes": ["**", "!package.json", "!plugin.json"]
+		"includes": ["**", "!package.json"]
 	}
 }

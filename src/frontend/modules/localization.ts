@@ -1,4 +1,4 @@
-import { findModuleExport } from "@steambrew/client";
+import { findModuleExport } from "millennium";
 
 /**
  * Replaces `%1$s`, `%2$s`, etc. in a localization string with provided arguments.

@@ -2,11 +2,12 @@
 	"compilerOptions": {
 		"allowSyntheticDefaultImports": true,
 		"jsx": "react-jsx",
-		"moduleResolution": "node",
+		"moduleResolution": "bundler",
 		"paths": {
-			"@/*": ["./src/*"]
+			"@/*": ["./src/frontend/*"],
+			"millennium": ["./.millennium/lsp/ts"]
 		},
-		"resolveJsonModule": true,
-		"target": "esnext"
-	}
+		"resolveJsonModule": true
+	},
+	"include": ["./src", "./.millennium/types"]
 }

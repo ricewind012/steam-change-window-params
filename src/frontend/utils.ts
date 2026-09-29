@@ -4,7 +4,7 @@ import {
 	type ShowModalProps,
 	type SingleDropdownOption,
 	showModal,
-} from "@steambrew/client";
+} from "millennium";
 import type { ReactNode } from "react";
 
 type EnumObject_t = [string, number][];
