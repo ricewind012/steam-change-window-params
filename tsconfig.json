@@ -8,5 +8,6 @@
 			"millennium": ["./.millennium/lsp/ts"]
 		},
 		"resolveJsonModule": true
-	}
+	},
+	"include": ["./src", "./.millennium/types"]
 }

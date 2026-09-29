@@ -10,23 +10,17 @@ import {
 } from "@/settings";
 import type { SteamPopup, Unsubscribable } from "@/types";
 
-import english from "../../locales/english.json";
-
 const MAIN_WINDOW_NAME = "SP Desktop_uid0";
 
 let g_bMainWindowWorkaroundApplied = false;
 const g_pLogger = new CLog("index");
 
-const locales: Record<string, Record<string, string>> = {
-	english,
-};
-
 async function InitLocalization() {
 	const lang = await SteamClient.Settings.GetCurrentLanguage();
-	let tokens = locales[lang];
+	let tokens = await backend.read_locale(lang);
 	if (!tokens) {
 		g_pLogger.Warn("No %o locale, reverting to English", lang);
-		tokens = locales.english;
+		tokens = await backend.read_locale("english");
 	}
 
 	LocalizationManager.AddTokens(tokens);

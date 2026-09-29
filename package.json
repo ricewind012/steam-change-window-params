@@ -8,7 +8,7 @@
 		"build": "starlight"
 	},
 	"dependencies": {
-		"@steambrew/starlight": "^1.1.4"
+		"@steambrew/starlight": "1.1.6"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.10",
