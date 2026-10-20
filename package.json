@@ -13,7 +13,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.10",
-		"@ricewind012/semantic-release-millennium": "github:ricewind012/semantic-release-millennium#master",
+		"@ricewind012/semantic-release-millennium": "github:ricewind012/semantic-release-millennium#v1.0.1",
 		"@semantic-release/git": "^11.0.1",
 		"@types/bun": "^1.4.3",
 		"@types/react": "19.1.1",

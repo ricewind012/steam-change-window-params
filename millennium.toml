@@ -14,3 +14,6 @@ sources = [ "src/backend/**/*.lua" ]
 
 [frontend]
 entry = "src/frontend/index.tsx"
+
+[dev]
+reload_steamui_when = "both"
