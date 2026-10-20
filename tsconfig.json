@@ -7,7 +7,8 @@
 			"@/*": ["./src/frontend/*"],
 			"millennium": ["./.millennium/lsp/ts"]
 		},
-		"resolveJsonModule": true
+		"resolveJsonModule": true,
+		"strictNullChecks": false
 	},
 	"include": ["./src", "./.millennium/types"]
 }

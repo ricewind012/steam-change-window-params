@@ -165,11 +165,11 @@ function GetSimpleParamValue(mapParams: WindowParamMap_t<WindowParamValue_t>) {
 	const { simpleParams } = GetSettings();
 
 	return Object.entries(mapParams).every(([param, paramValue]) => {
-		const lhs = simpleParams[param];
+		const lhs = simpleParams[param as WindowParam_t];
 		const rhs = paramValue;
 
 		return Array.isArray(paramValue)
-			? AreTwoArraysEqual(lhs, rhs as number[])
+			? AreTwoArraysEqual(lhs as number[], rhs as number[])
 			: Number(lhs) === Number(rhs);
 	});
 }
@@ -184,7 +184,7 @@ interface ParamFieldProps extends PropsWithChildren {
 	/**
 	 * Param name.
 	 */
-	label: string;
+	label: WindowParam_t;
 
 	/**
 	 * Description loc token.
@@ -267,7 +267,7 @@ function EnumParam(props: ParamProps) {
 
 interface FlagParamProps extends ParamProps {
 	flag: number;
-	member: string;
+	member: WindowParam_t;
 }
 
 function FlagParam(props: FlagParamProps) {
@@ -489,7 +489,12 @@ function AdvancedSettings() {
 				<DialogControlsSection>
 					<SettingsDialogSubHeader>{param}</SettingsDialogSubHeader>
 					{EnumToObject(mapParamFlags[param]).map(([member, flag]) => (
-						<FlagParam key={member} name={param} member={member} flag={flag} />
+						<FlagParam
+							key={member}
+							name={param}
+							member={member as WindowParam_t}
+							flag={flag}
+						/>
 					))}
 				</DialogControlsSection>
 			</PanelSectionRow>

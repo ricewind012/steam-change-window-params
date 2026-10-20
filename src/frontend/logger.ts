@@ -11,7 +11,11 @@ export class CLog {
 		this.m_strScope = strScope;
 	}
 
-	private Print(strMethod: string, strFormat: string, ...args: any[]) {
+	private Print<T extends "error" | "log" | "warn">(
+		strMethod: T,
+		strFormat: string,
+		...args: Parameters<Console[T]>
+	) {
 		console[strMethod](
 			`%c${PLUGIN_NAME}%c${this.m_strScope}%c ${strFormat}`,
 			`${LOG_STYLE}; background-color: #fff; color: #000`,
@@ -42,7 +46,7 @@ export class CLog {
 
 export class CLogTime extends CLog {
 	private m_strLabel: string;
-	private m_unStart: number;
+	private m_unStart = 0;
 
 	constructor(strScope: string, strLabel: string) {
 		super(strScope);

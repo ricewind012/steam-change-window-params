@@ -37,16 +37,18 @@ const DEFAULT_SETTINGS: Settings = {
 	simpleParams: {},
 };
 
-let g_pSettings: Settings = null;
+let g_pSettings: Settings | null = null;
 
-export const mapParamEnums: WindowParamMap_t<object> = {
+// biome-ignore lint/suspicious/noExplicitAny: Intentional
+export const mapParamEnums: WindowParamMap_t<any> = {
 	browserType: EBrowserType,
 	vrOverlayKey: Object.values(
 		findModuleByExport((m) => m === "valve.steam.gamepadui.main"),
 	) as string[],
 };
 
-export const mapParamFlags: WindowParamMap_t<object> = {
+// biome-ignore lint/suspicious/noExplicitAny: Intentional
+export const mapParamFlags: WindowParamMap_t<any> = {
 	createflags: EPopupCreationFlags,
 };
 
@@ -108,7 +110,7 @@ export function ResetSettings() {
  */
 function SaveToGlobal() {
 	g_pSettings =
-		JSON.parse(localStorage.getItem(SETTINGS_KEY)) || DEFAULT_SETTINGS;
+		JSON.parse(localStorage.getItem(SETTINGS_KEY) ?? "") || DEFAULT_SETTINGS;
 }
 
 export function SetSettingsKey<

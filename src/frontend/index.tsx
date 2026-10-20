@@ -41,8 +41,8 @@ function AddPopupCreatedCallback(
 		return;
 	}
 
-	return g_PopupManager.AddPopupCreatedCallback((popup) => {
-		if (popup.m_strName !== popupName) {
+	return g_PopupManager.AddPopupCreatedCallback((popup: SteamPopup) => {
+		if (popup.GetName() !== popupName) {
 			return;
 		}
 
@@ -70,10 +70,11 @@ async function OnMainWindowCreated() {
 
 async function OnPopupCreated(pPopup: SteamPopup) {
 	const params = GetParams();
+	const { options } = GetSettings();
 
 	const strName = pPopup.GetName();
 	const unPID = pPopup.browser_info?.m_unPID ?? 0;
-	if (!WillApplyWindowOptions(strName, unPID)) {
+	if (!WillApplyWindowOptions(strName, unPID, options)) {
 		return;
 	}
 
@@ -93,6 +94,10 @@ export default definePlugin(async () => {
 
 	const pOriginalOpen = window.open;
 	window.open = (url, target, features) => {
+		if (!url) {
+			return pOriginalOpen(url, target, features);
+		}
+
 		const bIsBPMWindow =
 			target === "SP BPM_uid0" ||
 			target?.startsWith("MainMenu_") ||
@@ -104,7 +109,7 @@ export default definePlugin(async () => {
 
 		const pNewURL = new URL(url);
 		const unPID = Number(pNewURL.searchParams.get("pid") ?? "0");
-		if (!WillApplyWindowOptions(target ?? "", unPID)) {
+		if (!WillApplyWindowOptions(target ?? "", unPID, options)) {
 			g_pLogger.Log("window.open: ignoring %o by preference", target);
 			return pOriginalOpen(url, target, features);
 		}
