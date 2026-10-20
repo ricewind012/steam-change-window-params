@@ -2,7 +2,7 @@
 	"name": "steam-change-window-params",
 	"version": "1.0.2",
 	"description": "Modify how Steam displays windows",
-	"main": "./src/frontend/index.tsx",
+	"private": true,
 	"type": "module",
 	"scripts": {
 		"build": "starlight"
@@ -12,6 +12,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.10",
+		"@ricewind012/semantic-release-millennium": "github:ricewind012/semantic-release-millennium#master",
 		"@types/bun": "^1.4.3",
 		"@types/react": "19.1.1",
 		"@types/react-dom": "19.1.1"

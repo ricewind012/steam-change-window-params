@@ -6,11 +6,11 @@ name = "Change Window Params"
 version = "1.0.2"
 
 [assets]
-resources = ["locales"]
+resources = [ "locales" ]
 
 [backend]
 entry = "src/backend/main.lua"
-sources = ["src/backend/**/*.lua"]
+sources = [ "src/backend/**/*.lua" ]
 
 [frontend]
 entry = "src/frontend/index.tsx"

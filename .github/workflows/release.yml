@@ -1,0 +1,32 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - parallel:
+        - name: Checkout
+          uses: actions/checkout@v7
+
+        - name: Setup Bun
+          uses: oven-sh/setup-bun@v2
+
+      - name: Install
+        run: bun i
+
+      - name: Test
+        run: bun test
+
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bun x --bun semantic-release

@@ -9,6 +9,7 @@
       },
       "devDependencies": {
         "@biomejs/biome": "^2.5.10",
+        "@ricewind012/semantic-release-millennium": "github:ricewind012/semantic-release-millennium#master",
         "@types/bun": "^1.4.3",
         "@types/react": "19.1.1",
         "@types/react-dom": "19.1.1",
@@ -34,6 +35,10 @@
 
     "@biomejs/cli-win32-x64": ["@biomejs/cli-win32-x64@2.5.10", "", { "os": "win32", "cpu": "x64" }, "sha512-M+2dgBsl3lXRiTfgPVc2p3anS4Tocojke4rzFLScZ2Y/wmF+36dRb1iHCLiyGqOzQGyTplZH1HnEYviiAqi3nA=="],
 
+    "@ricewind012/semantic-release-millennium": ["@ricewind012/semantic-release-millennium@github:ricewind012/semantic-release-millennium#0427839", { "dependencies": { "@semantic-release/error": "^4.0.0", "smol-toml": "^1.9.1" } }, "ricewind012-semantic-release-millennium-0427839", "sha512-Q0I7yzlLNs1Ie4Zs4eh2Ri0iE2ayDpaA0q4ZMG8Nt4vkfecMcHZMfh+uLeFYOkVNPPrhQQaSVuIE4DqYO4B5JQ=="],
+
+    "@semantic-release/error": ["@semantic-release/error@4.0.0", "", {}, "sha512-mgdxrHTLOjOddRVYIYDo0fR3/v61GNN1YGkfbrjuIKg/uMgCd+Qzo3UAXJ+woLQQpos4pl5Esuw5A7AoNlzjUQ=="],
+
     "@steambrew/starlight": ["@steambrew/starlight@1.1.6", "", { "bin": { "starlight": "bin/starlight.js" } }, "sha512-M2tVnoGru9zfqI7mvJK6gizOVJX/AuYvHAKD1kbzxA1RUM8zRgL04Vk0bmVu0mVj4eHVXVkaa6+7eyBfHC++nA=="],
 
     "@types/bun": ["@types/bun@1.4.3", "", { "dependencies": { "bun-types": "1.4.3" } }, "sha512-N67Pqy8JXbAY/j0tNraS3V5mubGvc6rrrNDmDCtZLlFzccbUJPDb0tvgUBC5q4m8ybkP93Jcn1QB+RYQ6PvBhw=="],
@@ -48,6 +53,10 @@
 
     "csstype": ["csstype@3.2.3", "", {}, "sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ=="],
 
-    "undici-types": ["undici-types@8.9.0", "", {}, "sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg=="],
+    "smol-toml": ["smol-toml@1.9.1", "", {}, "sha512-j7WyPdf0CJoutMzMoPLF/bVXHtKZIT9Rb4eGeEbWw8X2t5oirjPgpL+OpaENZrILYaXqYwnVH+qgUwVbl+pUJQ=="],
+
+    "undici-types": ["undici-types@8.12.3", "", {}, "sha512-EXE4ydL3S76dFb27UFjNVZHTyv/TLdATj/KUe29ptdcg6qXL48J2tZ3126E5kICj5jn781OR+XlVH1N6Mz8jbA=="],
+
+    "@types/node/undici-types": ["undici-types@8.9.0", "", {}, "sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg=="],
   }
 }
