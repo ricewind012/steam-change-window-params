@@ -1,11 +1,8 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: intentional */
 
-import {
-	type ShowModalProps,
-	type SingleDropdownOption,
-	showModal,
-} from "millennium";
-import type { ReactNode } from "react";
+import type { SingleDropdownOption } from "millennium";
+
+import type { Settings } from "./settings";
 
 type EnumObject_t = [string, number][];
 
@@ -38,10 +35,26 @@ export const EnumToDropdown = (e: any) =>
 export const EnumToObject = (e: any) =>
 	Object.entries(e).filter((e) => typeof e[1] === "number") as EnumObject_t;
 
-/**
- * Cool wrapper for {@link showModal} that doesn't require a parent.
- */
-export function ShowDialog(modal: ReactNode, props: ShowModalProps) {
-	const wnd = SteamUIStore.WindowStore.MainWindowInstance.BrowserWindow;
-	return showModal(modal, wnd, props);
+export function WillApplyWindowOptions(
+	strName: string,
+	unPID: number,
+	options: Settings["options"],
+) {
+	const bIsMenu = strName.startsWith("contextmenu_");
+	const bIsNotification = strName.startsWith("notificationtoasts_");
+	const bIsOverlay = strName.startsWith("desktopoverlay_");
+	const bIsOverlayParent = unPID !== 0;
+
+	const bIsSpecialWindow =
+		bIsMenu || bIsNotification || bIsOverlay || bIsOverlayParent;
+	if (!bIsSpecialWindow) {
+		return true;
+	}
+
+	return (
+		(options.IncludeMenus && bIsMenu) ||
+		(options.IncludeNotifications && bIsNotification) ||
+		(options.IncludeOverlay && (bIsOverlay || bIsOverlayParent)) ||
+		false
+	);
 }

@@ -9,6 +9,7 @@ import {
 	ParseParamForHTMLAttribute,
 } from "@/settings";
 import type { SteamPopup, Unsubscribable } from "@/types";
+import { WillApplyWindowOptions } from "@/utils";
 
 const MAIN_WINDOW_NAME = "SP Desktop_uid0";
 
@@ -47,26 +48,6 @@ function AddPopupCreatedCallback(
 
 		callback(popup);
 	});
-}
-
-function WillApplyWindowOptions(strName: string, unPID: number) {
-	const { options } = GetSettings();
-
-	const bIsMenu = strName.startsWith("contextmenu_");
-	const bIsNotification = strName.startsWith("notificationtoasts_");
-	const bIsOverlay = strName.startsWith("desktopoverlay_");
-	const bIsOverlayParent = unPID !== 0;
-
-	// Other windows are outside the options' range.
-	if (bIsMenu || bIsNotification || bIsOverlay || bIsOverlayParent) {
-		return true;
-	}
-
-	const bOptionsApply =
-		(options.IncludeMenus && bIsMenu) ||
-		(options.IncludeNotifications && bIsNotification) ||
-		(options.IncludeOverlay && (bIsOverlay || bIsOverlayParent));
-	return bOptionsApply;
 }
 
 async function OnMainWindowCreated() {

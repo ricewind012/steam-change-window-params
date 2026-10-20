@@ -5,7 +5,9 @@ import {
 	Field,
 	type FieldProps,
 	PanelSectionRow,
+	type ShowModalProps,
 	type SingleDropdownOption,
+	showModal,
 	TextField,
 	Toggle,
 } from "millennium";
@@ -38,12 +40,7 @@ import {
 	type WindowParam_t,
 	type WindowParamMap_t,
 } from "@/types";
-import {
-	AreTwoArraysEqual,
-	EnumToDropdown,
-	EnumToObject,
-	ShowDialog,
-} from "@/utils";
+import { AreTwoArraysEqual, EnumToDropdown, EnumToObject } from "@/utils";
 
 // biome-ignore lint/correctness/noUnusedVariables: Needed for demonstration
 enum EParamType {
@@ -107,6 +104,14 @@ function useSyncedValue<T>(fnReadValue: () => T, vecDeps: readonly unknown[]) {
 	}, vecDeps);
 
 	return [value, setValue] as const;
+}
+
+/**
+ * Cool wrapper for {@link showModal} that doesn't require a parent.
+ */
+export function ShowDialog(modal: ReactNode, props: ShowModalProps) {
+	const wnd = SteamUIStore.WindowStore.MainWindowInstance.BrowserWindow;
+	return showModal(modal, wnd, props);
 }
 
 /**
