@@ -1,12 +1,19 @@
-/** biome-ignore-all lint/suspicious/noExplicitAny: intentional */
-
 import type { SingleDropdownOption } from "millennium";
 
 import type { Settings } from "./settings";
 
-type EnumObject_t = [string, number][];
+type NumericEnum_t<T extends object> = {
+	[K in Extract<keyof T, string>]: number;
+};
+type EnumObject_t<T extends object> = [Extract<keyof T, string>, T[keyof T]][];
 
-export function AreTwoArraysEqual(lhs: any[], rhs: any[]) {
+/**
+ * *Naïvely* compares two arrays.
+ *
+ * @returns `false` for missing values, non-arrays, or arrays of different
+ * lengths.
+ */
+export function AreTwoArraysEqual<T>(lhs: T[], rhs: T[]) {
 	if (!lhs || !rhs) {
 		return false;
 	}
@@ -26,18 +33,34 @@ export function AreTwoArraysEqual(lhs: any[], rhs: any[]) {
 	return true;
 }
 
-export const EnumToDropdown = (e: any) =>
-	EnumToObject(e).map((e) => ({
+/**
+ * Converts a numeric TypeScript enum into `<Dropdown />` options.
+ */
+export function EnumToDropdown<T extends NumericEnum_t<T>>(e: T) {
+	return EnumToObject(e).map((e) => ({
 		data: e[1],
 		label: e[0],
 	})) as SingleDropdownOption[];
+}
 
-export const EnumToObject = (e: any) =>
-	Object.entries(e).filter((e) => typeof e[1] === "number") as EnumObject_t;
+/**
+ * `enum EHello { Wat, Ever }` -> `[["Wat", 0], ["Ever", 1]]`
+ */
+export function EnumToObject<T extends NumericEnum_t<T>>(e: T) {
+	return Object.entries(e).filter(
+		(e) => typeof e[1] === "number",
+	) as EnumObject_t<T>;
+}
 
+/**
+ * @param strName Internal window name.
+ * @param unPID Parent process ID.
+ * @param options
+ */
 export function WillApplyWindowOptions(
 	strName: string,
 	unPID: number,
+	// this is an arg only for tests lol
 	options: Settings["options"],
 ) {
 	const bIsMenu = strName.startsWith("contextmenu_");
