@@ -5,7 +5,8 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"build": "starlight"
+		"build": "starlight --release",
+		"dev": "starlight"
 	},
 	"dependencies": {
 		"@steambrew/starlight": "1.1.6"
