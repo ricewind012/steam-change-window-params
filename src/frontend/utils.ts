@@ -60,7 +60,6 @@ export function EnumToObject<T extends NumericEnum_t<T>>(e: T) {
 export function WillApplyWindowOptions(
 	strName: string,
 	unPID: number,
-	// this is an arg only for tests lol
 	options: Settings["options"],
 ) {
 	const bIsMenu = strName.startsWith("contextmenu_");

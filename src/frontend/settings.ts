@@ -1,4 +1,4 @@
-import { findModuleByExport } from "millennium";
+import { findModuleByExport, pluginConfig } from "millennium";
 
 import { PLUGIN_NAME } from "@/consts";
 import {
@@ -30,14 +30,12 @@ export interface Settings {
 	simpleParams: WindowParamMap_t<WindowParamValue_t>;
 }
 
-const SETTINGS_KEY = `${PLUGIN_NAME}-settings`;
 const DEFAULT_SETTINGS: Settings = {
 	options: {},
 	params: {},
 	simpleParams: {},
 };
-
-let g_pSettings: Settings | null = null;
+const SEPARATOR = "-";
 
 // biome-ignore lint/suspicious/noExplicitAny: Intentional
 export const mapParamEnums: WindowParamMap_t<any> = {
@@ -52,30 +50,81 @@ export const mapParamFlags: WindowParamMap_t<any> = {
 	createflags: EPopupCreationFlags,
 };
 
+export function BuildSettingsKey<
+	F extends keyof Settings,
+	K extends Exclude<keyof Settings[F], symbol>,
+>(field: F, key: K) {
+	return `${field}${SEPARATOR}${key}`;
+}
+
 /**
  * Gets params from settings, prioritizing `simpleParams` over `params`, since
  * they're not compatible.
  */
-export function GetParams() {
-	const { params, simpleParams } = GetSettings();
+export async function GetParams() {
+	const { params, simpleParams } = await GetSettings();
 	const bUseSimpleParams = Object.keys(simpleParams).length !== 0;
 	const pResult = bUseSimpleParams ? simpleParams : params;
 
 	return Object.entries(pResult) as GetParamsResult_t;
 }
 
-export function GetSettings() {
-	if (!g_pSettings) {
-		SaveToGlobal();
-	}
+// #region
+// These all return `true`, because `strField` validation is done in
+// settingspanel.tsx already, so these only serve to satisfy TypeScript
+function isOptionKey(key: string): key is keyof Settings["options"] {
+	return true;
+}
 
-	return Object.assign(DEFAULT_SETTINGS, g_pSettings);
+function isWindowParam(key: string): key is WindowParam_t {
+	return true;
+}
+
+function isWindowParamValue(value: unknown): value is WindowParamValue_t {
+	return true;
+}
+// #endregion
+
+export async function GetSettings() {
+	const pSettings = await pluginConfig.getAll<Record<string, unknown>>();
+	const pResult = DEFAULT_SETTINGS;
+	// Holy shit fuck typescript
+	for (const [k, v] of Object.entries(pSettings)) {
+		const nSepIdx = k.indexOf(SEPARATOR);
+		if (nSepIdx === -1) {
+			continue;
+		}
+
+		const strField = k.slice(0, nSepIdx);
+		const strKey = k.slice(nSepIdx + 1);
+		switch (strField) {
+			case "options": {
+				if (!isOptionKey(strKey) || typeof v !== "boolean") {
+					continue;
+				}
+
+				pResult.options[strKey] = v;
+				break;
+			}
+
+			case "params":
+			case "simpleParams": {
+				if (!isWindowParam(strKey) || !isWindowParamValue(v)) {
+					continue;
+				}
+
+				pResult[strField][strKey] = v;
+				break;
+			}
+		}
+	}
+	return pResult;
 }
 
 export function ParseParam(k: WindowParam_t, v: WindowParamValue_t) {
 	switch (true) {
 		case Array.isArray(v):
-			return (v as number[]).reduce((a, b) => a | b).toString();
+			return v.reduce((a, b) => a | b).toString();
 		case k === "restoredetails":
 			return decodeURIComponent(v as string);
 		default:
@@ -91,9 +140,7 @@ export function ParseParamForHTMLAttribute(
 		case !!mapParamEnums[k]:
 			return mapParamEnums[k][v as string];
 		case !!mapParamFlags[k]:
-			return (v as unknown as number[])
-				.map((e) => mapParamFlags[k][e])
-				.join(" ");
+			return (v as number[]).map((e) => mapParamFlags[k][e]).join(" ");
 		default:
 			// The only number[] values are in the above maps already, the only
 			// ones left are strings.
@@ -102,35 +149,5 @@ export function ParseParamForHTMLAttribute(
 }
 
 export function ResetSettings() {
-	localStorage.removeItem(SETTINGS_KEY);
-}
-
-/**
- * Cache settings to a global so I don't read localStorage all the time.
- */
-function SaveToGlobal() {
-	g_pSettings =
-		JSON.parse(localStorage.getItem(SETTINGS_KEY) ?? "") || DEFAULT_SETTINGS;
-}
-
-export function SetSettingsKey<
-	F extends keyof Settings,
-	K extends keyof Settings[F],
->(field: F, key: K, value: Settings[F][K]) {
-	const pSettings = GetSettings();
-	pSettings[field][key] = value;
-	g_pSettings = pSettings;
-
-	localStorage.setItem(SETTINGS_KEY, JSON.stringify(pSettings));
-}
-
-export function RemoveSettingsKey<F extends keyof Settings>(
-	field: F,
-	key: keyof Settings[F],
-) {
-	const pSettings = GetSettings();
-	delete pSettings[field][key];
-	g_pSettings = pSettings;
-
-	localStorage.setItem(SETTINGS_KEY, JSON.stringify(pSettings));
+	pluginConfig.delete(PLUGIN_NAME);
 }

@@ -69,8 +69,7 @@ async function OnMainWindowCreated() {
 }
 
 async function OnPopupCreated(pPopup: SteamPopup) {
-	const params = GetParams();
-	const { options } = GetSettings();
+	const { options } = await GetSettings();
 
 	const strName = pPopup.GetName();
 	const unPID = pPopup.browser_info?.m_unPID ?? 0;
@@ -79,6 +78,7 @@ async function OnPopupCreated(pPopup: SteamPopup) {
 	}
 
 	const elRoot = pPopup.window.document.documentElement;
+	const params = await GetParams();
 	for (const [k, v] of params) {
 		const value = ParseParamForHTMLAttribute(k, v);
 		elRoot.setAttribute(k, value);
@@ -86,8 +86,8 @@ async function OnPopupCreated(pPopup: SteamPopup) {
 }
 
 export default definePlugin(async () => {
-	const params = GetParams();
-	const { options } = GetSettings();
+	const params = await GetParams();
+	const { options } = await GetSettings();
 
 	let bStartedBeforeMainWindow =
 		!g_PopupManager.GetExistingPopup(MAIN_WINDOW_NAME);
@@ -109,6 +109,11 @@ export default definePlugin(async () => {
 
 		const pNewURL = new URL(url);
 		const unPID = Number(pNewURL.searchParams.get("pid") ?? "0");
+		console["warn"]({
+			options,
+			params,
+			willApply: WillApplyWindowOptions(target ?? "", unPID, options),
+		});
 		if (!WillApplyWindowOptions(target ?? "", unPID, options)) {
 			g_pLogger.Log("window.open: ignoring %o by preference", target);
 			return pOriginalOpen(url, target, features);
@@ -123,6 +128,10 @@ export default definePlugin(async () => {
 		if (target === MAIN_WINDOW_NAME) {
 			bStartedBeforeMainWindow = true;
 		}
+		console["error"]("HELLO XD", target, {
+			new: pNewURL.toString(),
+			url: url.toString(),
+		});
 
 		return pOriginalOpen(pNewURL, target, features);
 	};

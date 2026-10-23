@@ -5,11 +5,13 @@ import {
 	Field,
 	type FieldProps,
 	PanelSectionRow,
+	pluginConfig,
 	type ShowModalProps,
 	type SingleDropdownOption,
 	showModal,
 	TextField,
 	Toggle,
+	usePluginConfig,
 } from "millennium";
 import {
 	type PropsWithChildren,
@@ -25,12 +27,11 @@ import { CLog } from "@/logger";
 import { BBCodeParser } from "@/modules/bbcode";
 import { Localize } from "@/modules/localization";
 import {
+	BuildSettingsKey,
 	GetSettings,
 	mapParamEnums,
 	mapParamFlags,
-	RemoveSettingsKey,
 	ResetSettings,
-	SetSettingsKey,
 	type Settings,
 	type WindowParamValue_t,
 } from "@/settings";
@@ -94,19 +95,6 @@ const SettingsDialogSubHeader = ({ children }: PropsWithChildren) => (
 );
 
 /**
- * Keep a state value in sync with a getter function.
- */
-function useSyncedValue<T>(fnReadValue: () => T, vecDeps: readonly unknown[]) {
-	const [value, setValue] = useState<T>(fnReadValue);
-
-	useEffect(() => {
-		setValue(fnReadValue());
-	}, vecDeps);
-
-	return [value, setValue] as const;
-}
-
-/**
  * Cool wrapper for {@link showModal} that doesn't require a parent.
  */
 export function ShowDialog(modal: ReactNode, props: ShowModalProps) {
@@ -133,36 +121,31 @@ function ShowWarningDialog(
 	);
 }
 
-function ChangeParamValue(name: WindowParam_t, value: WindowParamValue_t) {
-	SetSettingsKey("params", name, value);
-	g_pLogger.Log("Setting param %o to value %o", name, value);
-}
-
-function GetParamValue<T extends WindowParamValue_t>(name: WindowParam_t) {
-	const settings = GetSettings();
+async function GetParamValue<T extends WindowParamValue_t>(
+	name: WindowParam_t,
+) {
+	const settings = await GetSettings();
 	return settings.params[name] as T;
 }
 
-function ToggleSettingValue<
+async function ToggleSettingValue<
 	F extends keyof Settings,
-	K extends keyof Settings[F],
->(field: F, key: K, value: Settings[F][K]) {
+	K extends Exclude<keyof Settings[F], symbol>,
+>(field: F, key: K, value: Settings[F][K] & string) {
+	const strConfigKey = BuildSettingsKey(field, key);
 	if (value) {
-		SetSettingsKey(field, key, value);
+		await pluginConfig.set(strConfigKey, value);
 		g_pLogger.Log("Setting param %o to value %o", key, value);
 	} else {
-		RemoveSettingsKey(field, key);
+		await pluginConfig.delete(strConfigKey);
 		g_pLogger.Log("Removing %o from %o", key, field);
 	}
 }
 
-function GetBooleanSettingValue(strName: keyof Settings["options"]) {
-	const { options } = GetSettings();
-	return !!options[strName];
-}
-
-function GetSimpleParamValue(mapParams: WindowParamMap_t<WindowParamValue_t>) {
-	const { simpleParams } = GetSettings();
+async function GetSimpleParamValue(
+	mapParams: WindowParamMap_t<WindowParamValue_t>,
+) {
+	const { simpleParams } = await GetSettings();
 
 	return Object.entries(mapParams).every(([param, paramValue]) => {
 		const lhs = simpleParams[param as WindowParam_t];
@@ -209,22 +192,13 @@ function BoolParam(props: ParamProps) {
 	const { name } = props;
 	const token = `#ChangeWindowParams_ParamDesc_Bool_${name}`;
 
-	const [value, setValue] = useSyncedValue(
-		() => GetParamValue<boolean>(name),
-		[name],
-	);
-
-	const onChange = useCallback(
-		(value: boolean) => {
-			setValue(value);
-			ChangeParamValue(name, value);
-		},
-		[name, setValue],
+	const [value, setValue] = usePluginConfig<boolean>(
+		BuildSettingsKey("params", name),
 	);
 
 	return (
 		<ParamField label={name} description={token}>
-			<Toggle onChange={onChange} value={value} />
+			<Toggle onChange={(value) => setValue(value)} value={value} />
 		</ParamField>
 	);
 }
@@ -233,33 +207,25 @@ function EnumParam(props: ParamProps) {
 	const { name } = props;
 	const token = `#ChangeWindowParams_ParamDesc_Enum_${name}`;
 	const enumValues = mapParamEnums[name];
-	const actualValue = Array.isArray(enumValues)
+	const actualValue: SingleDropdownOption[] = Array.isArray(enumValues)
 		? enumValues.map((e) => ({ data: e, label: e }))
 		: EnumToDropdown(enumValues);
 
-	const [value, setValue] = useSyncedValue<SingleDropdownOption>(() => {
-		const param = Number(GetParamValue<string>(name));
-		const label = mapParamEnums[name][param];
-		return param ? { data: param, label } : k_pDefaultDropdownValue;
-	}, [name]);
-
-	const onChange = useCallback(
-		(value: SingleDropdownOption) => {
-			const nextValueText = value.data.toString();
-			setValue(value);
-			ChangeParamValue(name, nextValueText);
-			g_pLogger.Warn("ChangeParam(%o): %o", name, value);
-		},
-		[name, setValue],
+	const [value, setValue] = usePluginConfig<string>(
+		BuildSettingsKey("params", name),
 	);
+	const num = Number(value);
+	const selectedOption = num
+		? { data: num, label: mapParamEnums[name][num] }
+		: k_pDefaultDropdownValue;
 
 	return (
 		<ParamField label={name} description={token}>
 			<Dropdown
 				contextMenuPositionOptions={{ bMatchWidth: false }}
-				onChange={onChange}
+				onChange={(value) => setValue(value.data.toString())}
 				rgOptions={actualValue}
-				selectedOption={value.data}
+				selectedOption={selectedOption.data}
 			/>
 		</ParamField>
 	);
@@ -274,24 +240,28 @@ function FlagParam(props: FlagParamProps) {
 	const { name, member, flag } = props;
 	const token = `#ChangeWindowParams_ParamDesc_Flag_${name}_${member}`;
 
-	const [value, setValue] = useSyncedValue<boolean>(() => {
-		const param = GetParamValue<number[]>(name) || [];
-		for (const entry of param) {
-			g_setFlags.add(entry);
-		}
-		return param.includes(flag);
-	}, [name, flag]);
+	const [value, setValue] = usePluginConfig<boolean>(
+		BuildSettingsKey("params", name),
+	);
 
 	const onChange = useCallback(
 		(value: boolean) => {
 			g_setFlags[value ? "add" : "delete"](flag);
 			const vecAllFlags = [...g_setFlags];
-			setValue(value);
-			SetSettingsKey("params", name, vecAllFlags);
+			setValue(vecAllFlags);
 			g_pLogger.Log("%o => %o", name, vecAllFlags);
 		},
 		[name, flag, setValue],
 	);
+
+	useEffect(() => {
+		GetParamValue<number[]>(name).then((param) => {
+			for (const entry of param) {
+				g_setFlags.add(entry);
+			}
+			setValue(param.includes(flag));
+		});
+	}, []);
 
 	return (
 		<ParamField label={member} description={token}>
@@ -308,9 +278,8 @@ function TextParam(props: TextParamProps) {
 	const { bNumeric, name } = props;
 	const token = `#ChangeWindowParams_ParamDesc_Text_${name}`;
 
-	const [value, setValue] = useSyncedValue<string>(
-		() => GetParamValue<string>(name),
-		[name],
+	const [value, setValue] = usePluginConfig<string>(
+		BuildSettingsKey("params", name),
 	);
 
 	return (
@@ -323,7 +292,6 @@ function TextParam(props: TextParamProps) {
 				onChange={(ev) => {
 					const { value } = ev.target;
 					setValue(value);
-					ChangeParamValue(name, value);
 				}}
 				mustBeNumeric={bNumeric}
 				value={value}
@@ -348,22 +316,13 @@ function BooleanSetting(props: BooleanSettingFieldProps) {
 	const { fieldProps, strName } = props;
 	const label = Localize(`#ChangeWindowParams_Verified_${strName}`);
 
-	const [value, setValue] = useSyncedValue<boolean>(
-		() => GetBooleanSettingValue(strName),
-		[strName],
-	);
-
-	const onChange = useCallback(
-		(value: boolean) => {
-			ToggleSettingValue("options", strName, value);
-			setValue(value);
-		},
-		[strName, setValue],
+	const [value, setValue] = usePluginConfig<boolean>(
+		BuildSettingsKey("options", strName),
 	);
 
 	return (
 		<Field label={label} {...fieldProps}>
-			<Toggle onChange={onChange} value={value} />
+			<Toggle onChange={(value) => setValue(value)} value={value} />
 		</Field>
 	);
 }
@@ -379,21 +338,28 @@ function SimpleParam(props: SimpleParamProps) {
 	const { fieldProps, mapParams, strName } = props;
 	const label = Localize(`#ChangeWindowParams_Verified_${strName}`);
 
-	const [value, setValue] = useSyncedValue<boolean>(
-		() => GetSimpleParamValue(mapParams),
-		[mapParams, strName],
+	const [value, setValue] = usePluginConfig<boolean>(
+		BuildSettingsKey("options", strName),
 	);
-
 	const onChange = useCallback(
-		(value: boolean) => {
+		async (value: boolean) => {
 			for (const kv of Object.entries(mapParams)) {
-				const [param, paramValue] = kv as [WindowParam_t, WindowParamValue_t];
-				ToggleSettingValue("simpleParams", param, paramValue);
+				const [param, paramValue] = kv as [
+					WindowParam_t,
+					WindowParamValue_t & string,
+				];
+				await ToggleSettingValue("simpleParams", param, paramValue);
 			}
 			setValue(value);
 		},
 		[mapParams, setValue],
 	);
+
+	useEffect(() => {
+		GetSimpleParamValue(mapParams).then((value) => {
+			setValue(value);
+		});
+	}, []);
 
 	return (
 		<Field label={label} {...fieldProps}>
