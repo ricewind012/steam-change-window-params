@@ -9,7 +9,7 @@
       },
       "devDependencies": {
         "@biomejs/biome": "^2.5.10",
-        "@ricewind012/semantic-release-millennium": "npm:@jsr/ricewind012__semantic-release-millennium@^1.1.4",
+        "@ricewind012/semantic-release-millennium": "npm:@jsr/ricewind012__semantic-release-millennium@^1.1.5",
         "@semantic-release/git": "^11.0.1",
         "@types/bun": "^1.4.3",
         "@types/react": "19.1.1",
@@ -78,7 +78,7 @@
 
     "@pnpm/npm-conf": ["@pnpm/npm-conf@3.0.3", "", { "dependencies": { "@pnpm/config.env-replace": "^1.1.0", "@pnpm/network.ca-file": "^1.0.1", "config-chain": "^1.1.11" } }, "sha512-//0sR/cow/s4ICQaYoAobOl4aU8cjU6x/V24V7XkKotb9+O+3zySIYp146vpaobYHnxa4pZX8NkV54Z5AwbDKA=="],
 
-    "@ricewind012/semantic-release-millennium": ["@jsr/ricewind012__semantic-release-millennium@1.1.4", "https://npm.jsr.io/~/11/@jsr/ricewind012__semantic-release-millennium/1.1.4.tgz", { "dependencies": { "@semantic-release/error": "^4.0.0", "@types/semantic-release__error": "^3.0.3", "semantic-release": "^25.0.9", "smol-toml": "^1.9.1" } }, "sha512-wY743Plxkkwwok3phSurFqZjSfTe3DlNpaSG37afSD622Hsec+DPMQMEdxYUMyUc8afRkvj4yed/KNcd8Xafig=="],
+    "@ricewind012/semantic-release-millennium": ["@jsr/ricewind012__semantic-release-millennium@1.1.5", "https://npm.jsr.io/~/11/@jsr/ricewind012__semantic-release-millennium/1.1.5.tgz", { "dependencies": { "@semantic-release/error": "^4.0.0", "@types/semantic-release__error": "^3.0.3", "semantic-release": "^25.0.9", "smol-toml": "^1.9.1" } }, "sha512-jiv9/aBcpuYPYlXSLvn+EbCM0BY5KNx1DtxdUkc4dDDrR+Ui4VcyE+VUvBgqWb163U6o15zb6fuCzIwqbq/xgQ=="],
 
     "@sec-ant/readable-stream": ["@sec-ant/readable-stream@0.4.1", "", {}, "sha512-831qok9r2t8AlxLko40y2ebgSDhenenCatLVeW/uBtnHPyhHOvG0C7TvfgecV+wHzIm5KUICgzmVpWS+IMEAeg=="],
 
